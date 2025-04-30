@@ -1,0 +1,1 @@
+struttura da creare e mantenere come una bruttacopia della relazione.

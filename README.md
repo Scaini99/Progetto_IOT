@@ -1,1 +1,1 @@
-progetto iot mio e di thomas
+progetto iot di Scaini Luca e Thomas Massarutto
