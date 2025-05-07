@@ -40,5 +40,11 @@ docker exec influxdb2 influx bucket create -n pacchi  -o progetto  -t <token>
 ```
 creati due utenti in influxdb chiamati phyton e grafana
 ```bash
-ocker exec influxdb2 influx user create -n <utente> -p <password> -o progetto -t <token>
+docker exec influxdb2 influx user create -n <utente> -p <password> -o progetto -t <token>
+```
+consentiti permessi di scrittura e lettura da parte degli utenti
+```bash
+docker exec influxdb2 influx auth create -u grafana -d read_db --read-bucket <IDbucket> -o progetto -t <token>
+
+docker exec influxdb2 influx auth create -u python -d write_db --write-bucket <IDbucket> --read-bucket <IDbucket> -o progetto -t <token>
 ```
