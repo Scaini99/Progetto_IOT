@@ -1,7 +1,7 @@
 
-# Portainer
+# Docker
 
-## Installazione portainer
+## Portainer
 
 Per semplificare la gestione di Docker è stato installato Portainer, un’interfaccia grafica per amministrare i container.
 
@@ -77,3 +77,7 @@ L'utente _python_ dispone dei permessi di lettura e scrittura, mentre l'utente _
 docker exec influxdb2 influx auth create -u python -d readwrite_db --write-bucket <IDbucket> --read-bucket <IDbucket> -o sMister -t <token>
 docker exec influxdb2 influx auth create -u grafana -d read_db --read-bucket <IDbucket> -o sMister -t <token>
 ```
+### routing
+
+Lo stack _routing_ contiene i servizi necessari al routing dei pacchi, contiene VROOM e ORS.
+
