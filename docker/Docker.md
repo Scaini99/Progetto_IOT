@@ -1,9 +1,19 @@
 
 # Docker
 
+Si è scelto di utilizzare Docker per rendere il progetto facilemte replicabile. Per installare Docker:
+
+```sh
+sudo apt install docker-compose
+```
+
 ## Portainer
 
 Per semplificare la gestione di Docker è stato installato Portainer, un’interfaccia grafica per amministrare i container.
+
+```sh
+docker-compose -f portainer.yaml up -d
+```
 
 ```yaml
 version: '3.8'
@@ -80,4 +90,20 @@ docker exec influxdb2 influx auth create -u grafana -d read_db --read-bucket <ID
 ### routing
 
 Lo stack _routing_ contiene i servizi necessari al routing dei pacchi, contiene VROOM e ORS.
+
+```yaml
+version: '3.8'
+
+services:
+  vroom:
+    image: ghcr.io/vroom-project/vroom-docker:v1.14.0
+    container_name: vroom
+    environment:
+      - VROOM_ROUTER=osrm  # Routing layer (osrm, valhalla, ors)
+    ports:
+      - "3100:3000"
+    volumes:
+      - /home/admin/sMister/docker/VROOM/conf:/conf  # Mapped volume for config & log files
+    restart: unless-stopped
+```
 

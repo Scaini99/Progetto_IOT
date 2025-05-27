@@ -8,14 +8,14 @@ import requests
 
 from vroom_utils import Vehicle, Job, VROOM_LINK
 
-
-
+## request a influx i veicoli disponibili
 vehicles= []
 
 for i in range(0,10):
     vehicle= Vehicle(i, 10)
     vehicles.append(vehicle.to_dict())
 
+## request a influx di ordini da evadere
 jobs= []## TODO: trovare i jobs dagli indirizzi su influx
 
 request = {
