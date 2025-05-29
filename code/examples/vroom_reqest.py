@@ -5,10 +5,11 @@
 
 import json
 import requests
+import psycopg2
 
 from vroom_utils import Vehicle, Job, VROOM_LINK
 
-## request a influx i veicoli disponibili
+## request a db i veicoli disponibili
 vehicles= []
 
 for i in range(0,10):
@@ -16,22 +17,38 @@ for i in range(0,10):
     vehicles.append(vehicle.to_dict())
 
 ## request a influx di ordini da evadere
-jobs= []## TODO: trovare i jobs dagli indirizzi su influx
+database = psycopg2.connect( host="192.168.1.82",
+                           port=5432,
+                           database="pacchi",
+                           user="admin",
+                           password="psqladmin")
 
-request = {
-    "vehicles": vehicles,
-    "jobs": jobs
-}
+cur = database.cursor()
+cur.execute("SELECT numero_ordine, cap, provincia, comune, via, civico, interno FROM dati_spedizione")
 
-print(request)
+jobs = []
+for row in cur.fetchall():
+    job = Job(*row)
+    jobs.append(job)
 
-job= Job
+print(jobs[0].location)
 
-response = requests.post(
-    VROOM_LINK,
-    json=request,
-    headers={"Content-Type": "application/json"}
-)
-
-##with open("response.json", "w") as f:
-##    f.write(response.text)
+##
+##
+##request = {
+##    "vehicles": vehicles,
+##    "jobs": jobs
+##}
+##
+##print(request)
+##
+##job= Job
+##
+##response = requests.post(
+##    VROOM_LINK,
+##    json=request,
+##    headers={"Content-Type": "application/json"}
+##)
+##
+####with open("response.json", "w") as f:
+####    f.write(response.text)
