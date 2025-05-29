@@ -40,19 +40,6 @@ Lo stack _metrics_ raccoglie i servizi basilari quali **Influxdb** e **Grafana**
 ```yaml
 version: '3.8'
 
-services:
-  influxdb2:
-    image: uniud4iot/influxdb2:v2.2.1-armv7l
-    container_name: influxdb2
-    ports:
-      - "8086:8086"
-    volumes:
-      - /home/admin/sMister/docker/influxdb:/root/.influxdbv2
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-    command: influxd
-    restart: unless-stopped
-
   grafana:
     image: grafana/grafana
     container_name: grafana
@@ -65,28 +52,57 @@ services:
     init: true
 ```
 
-#### Influxdb
+### Database
 
-Influxdb è il database del sistema.
+Questo stack contiene i servizi per gestire i database.
 
-Una prima configurazione prevede la creazione del database contenente i pacchi e le loro informazioni:
+```yaml
 
-```bash
-docker exec influxdb2 influx bucket create -n pacchi  -o sMister-t <token>
+version: "3.9"
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "psqladmin"
+    ports:
+      - "5432:5432"
+    volumes:
+      - /home/admin/sMister/docker/postgres/data:/var/lib/postgresql/data
+    container_name: postgresql
+    restart: unless-stopped
+    
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports: 
+      - 8080:8080
 ```
 
-Per una gestione più ordinata sono stati creati due utenti distinti: _python_ e _grafana_.
+#### Postgres
 
-```bash
-docker exec influxdb2 influx user create -n python -p <password> -o sMister -t <token>
-docker exec influxdb2 influx user create -n grafana -p <password> -o sMister -t <token>
-```
-L'utente _python_ dispone dei permessi di lettura e scrittura, mentre l'utente _grafana_ solo di lettura.
+Il databese che contiene le informazioni relative ai pacchi.
 
-```bash
-docker exec influxdb2 influx auth create -u python -d readwrite_db --write-bucket <IDbucket> --read-bucket <IDbucket> -o sMister -t <token>
-docker exec influxdb2 influx auth create -u grafana -d read_db --read-bucket <IDbucket> -o sMister -t <token>
+Al suo interno è presente un database `pacchi`.
+
+```sql
+CREATE TABLE dati_spedizione (
+  numero_ordine INTEGER UNIQUE NOT NULL,
+  cap INTEGER NOT NULL,
+  provincia TEXT NOT NULL,
+  comune TEXT NOT NULL,
+  via TEXT NOT NULL,
+  civico INTEGER NOT NULL,
+  interno TEXT
+);
+
 ```
+
+#### Adminer
+
+Programma che serve per gestire da un interfaccia grafica Postgres.
+
+
 ### routing
 
 Lo stack _routing_ contiene i servizi necessari al routing dei pacchi, contiene VROOM e ORS.
