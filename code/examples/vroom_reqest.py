@@ -33,22 +33,21 @@ for row in cur.fetchall():
 
 print(jobs[0].location)
 
-##
-##
-##request = {
-##    "vehicles": vehicles,
-##    "jobs": jobs
-##}
-##
-##print(request)
-##
-##job= Job
-##
-##response = requests.post(
-##    VROOM_LINK,
-##    json=request,
-##    headers={"Content-Type": "application/json"}
-##)
-##
-####with open("response.json", "w") as f:
-####    f.write(response.text)
+
+
+request = {
+    "vehicles": vehicles,
+    "jobs": [job.to_dict() for job in jobs]
+}
+
+print(request)
+
+
+response = requests.post(
+    VROOM_LINK,
+    json=request,
+    headers={"Content-Type": "application/json"}
+)
+
+##with open("response.json", "w") as f:
+##    f.write(response.text)

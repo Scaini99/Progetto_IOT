@@ -37,7 +37,7 @@ class Job:
     
     def to_dict(self):
         return {
-            "id": self.id,
+            "id": self.numero_ordine,
             "location": self.location,
             "delivery": self.delivery,
         }
