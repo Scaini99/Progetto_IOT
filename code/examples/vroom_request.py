@@ -7,7 +7,7 @@ import json
 import requests
 import psycopg2
 
-from vroom_utils import Vehicle, Job, VROOM_LINK
+from custom_lib.vroom_utils import Vehicle, Job, VROOM_LINK
 
 ## request a db i veicoli disponibili
 vehicles= []
