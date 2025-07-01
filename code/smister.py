@@ -59,11 +59,11 @@ request = {
 #print(request)
 
 response = requests.post(
-    'http://localhost:3100',
+    'http://localhost:3000',
     json=request,
     headers={"Content-Type": "application/json"}
 )
 
-print(json.dumps(request, indent=2))
+##print(json.dumps(response, indent=2))
 
 print(response)

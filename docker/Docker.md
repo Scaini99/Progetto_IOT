@@ -107,19 +107,61 @@ Programma che serve per gestire da un interfaccia grafica Postgres.
 
 Lo stack _routing_ contiene i servizi necessari al routing dei pacchi, contiene VROOM e ORS.
 
+Prima di tutto bisogna scaricare le mappe
+```
+mkdir -p ~/vroom-osrm/data
+wget https://download.geofabrik.de/europe/italy/nord-est-latest.osm.pbf -O ~/vroom-osrm/data/map.osm.pbf
+
+```
+
+Dopodiché bisogna eseguire questo container per preparare le mappe
+
+```
+version: '3.8'
+
+services:
+  osrm-prep:
+    image: osrm/osrm-backend
+    command: >
+      sh -c "
+        osrm-extract -p /opt/car.lua /data/map.osm.pbf &&
+        osrm-contract /data/map.osrm
+      "
+    volumes:
+      - /home/thomas/vroom-osrm/data:/data
+    restart: "no"
+
+```
+
+Una volta eseguito è meglio eliminarlo.
+
+A questo punto è possibile installare i servizi di routing.
+
 ```yaml
 version: '3.8'
 
 services:
+  osrm:
+    network_mode: host ## todo
+    image: osrm/osrm-backend
+    command: osrm-routed /data/map.osrm
+    volumes:
+      - /home/thomas/vroom-osrm/data:/data
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
   vroom:
+    network_mode: host ## todo
     image: ghcr.io/vroom-project/vroom-docker:v1.14.0
-    container_name: vroom
     environment:
-      - VROOM_ROUTER=osrm  # Routing layer (osrm, valhalla, ors)
+      - VROOM_ROUTER=osrm
+      - OSRM_HOST=osrm
+      - OSRM_PORT=5000
     ports:
       - "3100:3000"
-    volumes:
-      - /home/admin/sMister/docker/VROOM/conf:/conf  # Mapped volume for config & log files
+    depends_on:
+      - osrm
     restart: unless-stopped
 ```
 

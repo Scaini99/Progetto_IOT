@@ -3,14 +3,14 @@ from custom_lib.geo_utils import Address
 VROOM_LINK = 'http://solver.vroom-project.org/' ## da cambiare con host
 
 ## Coordinate della base per le consegne
-base_lat = 45.0
-base_lon= 11.0
+base_lat = 45.9558648
+base_lon= 12.9801816
 
 class Vehicle:
     def __init__(self, id, capacity):
         self.id = id
         self.capacity = [capacity]
-        self.start= [base_lat, base_lon]
+        self.start= [base_lon, base_lat]
 
     def to_dict(self):
         return {
