@@ -17,7 +17,7 @@ for i in range(0,10):
     vehicles.append(vehicle.to_dict())
 
 ## request a influx di ordini da evadere
-database = psycopg2.connect( host="192.168.1.82",
+database = psycopg2.connect( host="localhost",
                            port=5432,
                            database="pacchi",
                            user="admin",
@@ -49,5 +49,5 @@ response = requests.post(
     headers={"Content-Type": "application/json"}
 )
 
-##with open("response.json", "w") as f:
-##    f.write(response.text)
+with open("response.json", "w") as f:
+    f.write(response.text)

@@ -1,7 +1,7 @@
-from custom_lib import geo_utils
+from custom_lib.geo_utils import Address
 
 
-indirizzo = geo_utils.Address("33100", "UD", "Udine", "Via delle scienze", "206", None)
+indirizzo = Address("33030", "UD", "Varmo", "Via Giovanni Antonio", "7", None)
 
 
 print(indirizzo.coordinate.lat, indirizzo.coordinate.lon)

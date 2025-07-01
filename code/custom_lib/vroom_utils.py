@@ -9,7 +9,7 @@ base_lon= 11.0
 class Vehicle:
     def __init__(self, id, capacity):
         self.id = id
-        self.capacity = capacity
+        self.capacity = [capacity]
         self.start= [base_lat, base_lon]
 
     def to_dict(self):
@@ -27,7 +27,7 @@ class Job:
         self.numero_ordine= numero_ordine
         self.indirizzo = Address(cap, provincia, comune, via, civico, interno)
         self.location= [self.indirizzo.coordinate.lat, self.indirizzo.coordinate.lon]
-        self.delivery= 1
+        self.delivery= [1]
 
     def add_delivery(self):
         '''

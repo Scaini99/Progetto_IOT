@@ -5,6 +5,9 @@
 
 ## Import librerie
 import psycopg2
+import json
+
+import requests
 
 from custom_lib.vroom_utils import Vehicle, Job, VROOM_LINK
 
@@ -45,4 +48,22 @@ for row in cur.fetchall():
     jobs.append(job)
 
 
-##print(jobs[0].location)
+#print(jobs[0].location)
+
+
+request = {
+    "vehicles": fleet,
+    "jobs": [job.to_dict() for job in jobs]
+}
+
+#print(request)
+
+response = requests.post(
+    'http://localhost:3100',
+    json=request,
+    headers={"Content-Type": "application/json"}
+)
+
+print(json.dumps(request, indent=2))
+
+print(response)

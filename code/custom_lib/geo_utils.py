@@ -1,6 +1,6 @@
 from geopy.geocoders import Nominatim
-geolocator = Nominatim(user_agent="sMister", timeout=10)
 
+geolocator = Nominatim(user_agent="sMister", timeout=10)
 
 class Coordinate:
     '''
@@ -26,8 +26,9 @@ class Address:
     def _get_coordinates(self):
         query = f"{self.via} {self.civico}, {self.comune}, {self.provincia}, {self.cap}, Italia"
         location = geolocator.geocode(query)
+        
         if location:
             return Coordinate(location.latitude, location.longitude)
         else:
-            print(f"{query}: No results found")
+            print(f"{query}: No results found for coordinates")
             return None
