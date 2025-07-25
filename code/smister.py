@@ -6,6 +6,7 @@
 ## Import librerie
 import psycopg2
 import json
+from datetime import date
 
 import requests
 
@@ -47,16 +48,11 @@ for row in cur.fetchall():
     job = Job(*row)
     jobs.append(job)
 
-
-#print(jobs[0].location)
-
-
+## richiede le consegne al servizio vroom
 request = {
     "vehicles": fleet,
     "jobs": [job.to_dict() for job in jobs]
 }
-
-#print(request)
 
 response = requests.post(
     'http://localhost:3000',
@@ -64,6 +60,21 @@ response = requests.post(
     headers={"Content-Type": "application/json"}
 )
 
-##print(json.dumps(response, indent=2))
+## risposta fatta diventare json per parsing migliore
+json_respose = json.loads(response.text)
 
-print(response)
+
+## Aggiunge i jobs nella tabella delle consegna
+for step in json_respose['routes'][0]['steps']:
+    if step['type'] == 'job':
+        numero_ordine = step['id']
+        veicolo_assegnato = json_respose['routes'][0]['vehicle']
+        stato = 'in_magazzino'
+        ultimo_aggiornamento = date.today()
+
+        cur.execute(
+            "INSERT INTO consegna (numero_ordine, veicolo_assegnato, stato, ultimo_aggiornamento) VALUES (%s, %s, %s, %s)",
+            (numero_ordine, veicolo_assegnato, stato, ultimo_aggiornamento)
+        )
+database.commit()
+
