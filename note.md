@@ -27,3 +27,7 @@ I servizi sono stati organizzati in stack dedicati, in modo da raggruppare compo
 sMister interroga il database per ottenere l'elenco delle consegne previste e riceve come risposta gli indirizzi dei colli associati. Queste informazioni sono trasformate in jobs, ovvero lavori di consegna da effettuare e, in base alla flotta di veicoli per le consegne disponibili, delega a VROOM il calcolo dei percorsi ottimali per ogni veicolo. 
 
 Una volta calcolato ciò, il sistema deve riconoscere l'id del pacco su un nastro trasportatore per indirizzarlo verso la baia di carico corretta: questo viene fatto tramite un codice a barre che identifica unicamente ogni pacco. Lungo la linea alcuni attuatori si occupano di consegnare alla zona di carico giusta ogni pacco.
+
+## Fasi 
+
+Il sistema funziona in due fasi separate. Durante il primo momento vengono creati i database di supporto contenenti le info per lo smistamento. Durante la seconda fase i pacchi vengono fisicamente smistati.

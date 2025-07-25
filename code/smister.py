@@ -78,3 +78,14 @@ for step in json_respose['routes'][0]['steps']:
         )
 database.commit()
 
+## smister2
+
+
+## leggere i pacchi
+
+## ricercare in db dove vanno
+
+## smistarrli
+    ## attivare motori nastro trasportatore
+    ## attivare servomotori 
+
