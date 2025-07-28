@@ -6,8 +6,8 @@
 ## Import librerie
 
 import custom_lib.vroom_utils as vroom_utils
-from geopy.geocoders import Nominatim
 from datetime import datetime
+from geopy.geocoders import Nominatim
 
 geolocator = Nominatim(user_agent="sMister", timeout=10) # ricerca indirizzi
 
@@ -51,9 +51,8 @@ except NameError:
 
 vroom_input= vroom_utils.input.Input()
 
-## inizializzazione flotta con i veicoli disponibili in giornata
-## TODO: inizializzare da db
-for i in range(10):
+## inizializzazione flotta con i veicoli disponibili
+for i in range(constants.NR_OF_VEHICLES):
     vehicle = vroom_utils.vehicle.Vehicle(i+1, 10, constants.BASE_COORD, constants.BASE_COORD)
     vroom_input.add_vehicle(vehicle)
 
