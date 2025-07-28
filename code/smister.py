@@ -4,73 +4,94 @@
 ##
 
 ## Import librerie
-import psycopg2
-import json
-from datetime import date
 
-import requests
+import custom_lib.vroom_utils as vroom_utils
+from geopy.geocoders import Nominatim
+from datetime import datetime
 
-from custom_lib.vroom_utils import Vehicle, Job, VROOM_LINK
+geolocator = Nominatim(user_agent="sMister", timeout=10) # ricerca indirizzi
 
-## const
-POSTGRESUSER= "admin"
-POSTGRESPASSWORD= "psqladmin"
+import constants    # contiene le costanti
+import psycopg2     # per database
+import requests     # richieste in rete
+import json         # maneggia file formato json
 
-## Connessione al db
+
+## Connettersi a db
+
 database = psycopg2.connect( 
-                            host="localhost",
-                            port=5432,
-                            database="pacchi",
-                            user= POSTGRESUSER,
-                            password= POSTGRESPASSWORD
+                            host=constants.DBHOST,
+                            port=constants.DBPORT,
+                            database=constants.DBNAME,
+                            user= constants.DBUSER,
+                            password= constants.DBPASSWORD
                            )
-
 try:
     database
-    print("Connessione attiva")
+    print("Connessione database attiva")
 except NameError:
-    print("Connessione non avvenuta")
+    print("Connessione database non avvenuta")
 
+## Inserimento pacchi di giornata in db
+## api per inserire dati all'interno del db tamite csv
+## PRE: connessione al db
+# - percorso al csv con i nuovi pacchi
+# - aggiunge pacchi al db
+## POST: table "dati_spedizione" popolata
+##TODO:
+# wrapper per db con custom_lib (serve?)
 
-## generazione lista dei veicoli
-fleet= []
+## Smistamento logico: vroom
+## avviene schedulato ad una certa ora
+## PRE: "dati_spedizione" popolata
+# - legge le consegne dalla table "dati_spedizione" 
+# - invoca il routing di vroom
+# - popola table "consegna"
+## POST: table "consegna" popolata
 
-for i in range(0,10): ## 10 veicoli 
-    vehicle= Vehicle(i, 10)
-    fleet.append(vehicle.to_dict())
+vroom_input= vroom_utils.input.Input()
 
-## query al database per cercare le consegne da fare oggi
+## inizializzazione flotta con i veicoli disponibili in giornata
+## TODO: inizializzare da db
+for i in range(10):
+    vehicle = vroom_utils.vehicle.Vehicle(i+1, 10, constants.BASE_COORD, constants.BASE_COORD)
+    vroom_input.add_vehicle(vehicle)
+
 cur = database.cursor()
-cur.execute("SELECT numero_ordine, cap, provincia, comune, via, civico, interno FROM dati_spedizione")  # Esegue la query SQL
-
-jobs = []  
+cur.execute("SELECT numero_ordine, cap, provincia, comune, via, civico, interno FROM dati_spedizione")
+ 
 for row in cur.fetchall():
-    job = Job(*row)
-    jobs.append(job)
+    job_id= row[0]
 
-## richiede le consegne al servizio vroom
-request = {
-    "vehicles": fleet,
-    "jobs": [job.to_dict() for job in jobs]
-}
+    job_cap= row[1]
+    job_provincia= row[2]
+    job_comune= row[3]
+    job_via= row[4]
+    job_civico= row[5]
+    job_interno= row[6]
+
+    address= f"{job_via}, {job_civico}, {job_cap}, {job_comune}, {job_provincia}, Italia"
+    
+    job_location= geolocator.geocode(address)
+
+    job= vroom_utils.job.Job(id=job_id, location=[job_location.longitude, job_location.latitude])
+    vroom_input.add_job(job)
 
 response = requests.post(
     'http://localhost:3000',
-    json=request,
+    json=vroom_input.to_dict(),
     headers={"Content-Type": "application/json"}
 )
 
-## risposta fatta diventare json per parsing migliore
-json_respose = json.loads(response.text)
+json_response = json.loads(response.text)
 
 
-## Aggiunge i jobs nella tabella delle consegna
-for step in json_respose['routes'][0]['steps']:
+for step in json_response['routes'][0]['steps']:
     if step['type'] == 'job':
         numero_ordine = step['id']
-        veicolo_assegnato = json_respose['routes'][0]['vehicle']
+        veicolo_assegnato = json_response['routes'][0]['vehicle']
         stato = 'in_magazzino'
-        ultimo_aggiornamento = date.today()
+        ultimo_aggiornamento = datetime.now().strftime("%Y-%m-%d %H:%M")
 
         cur.execute(
             "INSERT INTO consegna (numero_ordine, veicolo_assegnato, stato, ultimo_aggiornamento) VALUES (%s, %s, %s, %s)",
@@ -78,14 +99,15 @@ for step in json_respose['routes'][0]['steps']:
         )
 database.commit()
 
-## smister2
-
-
-## leggere i pacchi
-
-## ricercare in db dove vanno
-
-## smistarrli
-    ## attivare motori nastro trasportatore
-    ## attivare servomotori 
+## Smistamento fisico
+## avviene dopo lo smistamento logico
+## PRE: table "cosegna" popolata
+# - attivazione nastro trasportatore
+# - attivazione fotocamera
+# - riconoscimento barcode
+# - smistamento in base a table "consegna"
+# - attivazione attuatori
+## POST: table consegna aggiornata
+##TODO:
+# tipo creare tutto
 

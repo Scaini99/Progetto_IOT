@@ -102,7 +102,7 @@ CREATE TABLE consegna (
   numero_ordine INTEGER NOT NULL UNIQUE,
   veicolo_assegnato INTEGER NOT NULL,
   stato TEXT CHECK (stato IN ('in_magazzino', 'in_consegna', 'consegnato', 'tentata_consegna')) NOT NULL,
-  ultimo_aggiornamento DATE NOT NULL,
+  ultimo_aggiornamento TIMESTAMP(0) NOT NULL,
   FOREIGN KEY (numero_ordine) REFERENCES dati_spedizione(numero_ordine)
 );
 ```
