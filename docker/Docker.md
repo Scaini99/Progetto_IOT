@@ -1,5 +1,6 @@
 
 # Docker
+TODO: aggiornare path docker con struttura proposta
 
 Si è scelto di utilizzare Docker per rendere il progetto facilemte replicabile. Per installare Docker:
 
@@ -33,25 +34,6 @@ services:
 
 ## Stack
 
-### metrics
-
-Lo stack _metrics_ raccoglie i servizi basilari quali **Influxdb** e **Grafana**.
-
-```yaml
-version: '3.8'
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports :
-      - "3000:3000"
-    user: "0"
-    volumes:
-      - /home/admin/sMister/docker/grafana:/var/lib/grafana
-    restart: unless-stopped
-    init: true
-```
-
 ### Database
 
 Questo stack contiene i servizi per gestire i database.
@@ -83,19 +65,23 @@ services:
 
 Il databese che contiene le informazioni relative ai pacchi.
 
-Al suo interno è presente un database `pacchi`.
+Al suo interno è presente un database `centro_smistamento`.
+
+La tabella pacchi contiene tutto i pacchi che sono transitati per il centro di smistamento.
 
 ```sql
-CREATE TABLE dati_spedizione (
+CREATE TABLE pacchi (
   numero_ordine INTEGER UNIQUE NOT NULL,
   cap INTEGER NOT NULL,
   provincia TEXT NOT NULL,
   comune TEXT NOT NULL,
   via TEXT NOT NULL,
   civico INTEGER NOT NULL,
-  interno TEXT
+  interno TEXT,
 );
 ```
+
+La tabella consegna permette di tracciare ogni pacco all'interno del sistema.
 
 ```sql
 CREATE TABLE consegna (
@@ -125,7 +111,7 @@ wget https://download.geofabrik.de/europe/italy/nord-est-latest.osm.pbf -O ~/vro
 
 Dopodiché bisogna eseguire questo container per preparare le mappe
 
-```
+```yaml
 version: '3.8'
 
 services:

@@ -1,5 +1,26 @@
 # sMister
 
+## Struttura progetto
+TODO: da implementare!!
+
+sMister/
+├── dockerservices/
+│   ├── portainer/
+│   │   └── ...
+│   ├── database/
+│   │   └── ...
+│   └── routing/
+│       └── ...
+└── program/
+    ├── custom_lib/
+    │   └── ...
+    ├── examples/
+    │   └── ...
+    ├── smister.py
+    └── constants.py
+
+NB: gitignore su dockerservices: questa cartella serve solo come root per i servizi docker, è da aggiornare anche nei docker.
+
 ## Idea 
 
 L'idea di sMister nasce dalla crescente necessità da parte delle aziende di sistemi automatizzati che rendano più veloce ed efficiente lo smistamento dei pacchi.
