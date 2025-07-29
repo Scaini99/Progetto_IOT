@@ -178,3 +178,7 @@ pyrightconfig.json
 dockerservices/portainer/*
 dockerservices/database/*
 dockerservices/routing/*
+
+!dockerservices/portainer/.gitkeep
+!dockerservices/database/.gitkeep
+!dockerservices/routing/.gitkeep
