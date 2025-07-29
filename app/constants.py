@@ -3,7 +3,7 @@
 ## Database
 DBHOST="localhost"
 DBPORT=5432
-DBNAME="pacchi"
+DBNAME="centro_smistamento"
 DBUSER= "admin"
 DBPASSWORD="psqladmin"
 

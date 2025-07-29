@@ -93,10 +93,12 @@ for step in json_response['routes'][0]['steps']:
         ultimo_aggiornamento = datetime.now().strftime("%Y-%m-%d %H:%M")
 
         cur.execute(
-            "INSERT INTO consegna (numero_ordine, veicolo_assegnato, stato, ultimo_aggiornamento) VALUES (%s, %s, %s, %s)",
-            (numero_ordine, veicolo_assegnato, stato, ultimo_aggiornamento)
+            "INSERT INTO consegna (numero_ordine, veicolo_assegnato) VALUES (%s, %s)",
+            (numero_ordine, veicolo_assegnato)
         )
+        #aggiungere riga di aggiornamento e lo stato del pacco.
 database.commit()
+
 
 ## Smistamento fisico
 ## avviene dopo lo smistamento logico
@@ -109,4 +111,5 @@ database.commit()
 ## POST: table consegna aggiornata
 ##TODO:
 # tipo creare tutto
+
 
