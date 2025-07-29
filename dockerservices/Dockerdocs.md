@@ -1,6 +1,6 @@
 
 # Docker
-TODO: aggiornare path docker con struttura proposta
+
 
 Si è scelto di utilizzare Docker per rendere il progetto facilemte replicabile. Per installare Docker:
 
@@ -12,13 +12,9 @@ sudo apt install docker-compose
 
 Per semplificare la gestione di Docker è stato installato Portainer, un’interfaccia grafica per amministrare i container.
 
-```sh
-docker-compose -f portainer.yaml up -d
-```
+Dentro la cartella  `smister/dockerservices/portainer` creare il file `portainer.yaml`:
 
 ```yaml
-version: '3.8'
-
 services:
   portainer:
     image: portainer/portainer-ce
@@ -29,9 +25,14 @@ services:
       - "9443:9443" #https
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /home/admin/sMister/docker/portainer:/data
+      - /home/pi/smister/dockerservices/portainer:/data
 ```
 
+Per creare il container bisogna eseguire:
+
+```sh
+docker-compose -f portainer.yaml up -d
+```
 ## Stack
 
 ### Database
@@ -39,8 +40,6 @@ services:
 Questo stack contiene i servizi per gestire i database.
 
 ```yaml
-
-version: "3.9"
 services:
   postgres:
     image: postgres
@@ -50,7 +49,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /home/admin/sMister/docker/postgres/data:/var/lib/postgresql/data
+      - /home/pi/smister/dockerservices/database/postgres/data:/var/lib/postgresql/data
     container_name: postgresql
     restart: unless-stopped
     
@@ -65,12 +64,20 @@ services:
 
 Il databese che contiene le informazioni relative ai pacchi.
 
-Al suo interno è presente un database `centro_smistamento`.
+Il primo accesso viene eseguito tramite **Adminer**.
+
+Apri browser su http://<ip_del_server>:8080 
+  - System: PostgreSQL
+  - Server: postgres 
+  - Username: admin
+  - Password: psqladmin
+
+Al suo interno deve esserecreato un database `centro_smistamento`.
 
 La tabella pacchi contiene tutto i pacchi che sono transitati per il centro di smistamento.
 
 ```sql
-CREATE TABLE pacchi (
+CREATE TABLE pacco (
   numero_ordine INTEGER UNIQUE NOT NULL,
   cap INTEGER NOT NULL,
   provincia TEXT NOT NULL,
@@ -78,6 +85,8 @@ CREATE TABLE pacchi (
   via TEXT NOT NULL,
   civico INTEGER NOT NULL,
   interno TEXT,
+  stato TEXT CHECK (stato IN ('in_magazzino', 'in_consegna', 'consegnato', 'tentata_consegna')) NOT NULL,
+  ultimo_aggiornamento TIMESTAMP(0) NOT NULL,
 );
 ```
 
@@ -87,9 +96,7 @@ La tabella consegna permette di tracciare ogni pacco all'interno del sistema.
 CREATE TABLE consegna (
   numero_ordine INTEGER NOT NULL UNIQUE,
   veicolo_assegnato INTEGER NOT NULL,
-  stato TEXT CHECK (stato IN ('in_magazzino', 'in_consegna', 'consegnato', 'tentata_consegna')) NOT NULL,
-  ultimo_aggiornamento TIMESTAMP(0) NOT NULL,
-  FOREIGN KEY (numero_ordine) REFERENCES dati_spedizione(numero_ordine)
+  FOREIGN KEY (numero_ordine) REFERENCES pacco(numero_ordine)
 );
 ```
 
@@ -97,23 +104,23 @@ CREATE TABLE consegna (
 
 Programma che serve per gestire da un interfaccia grafica Postgres.
 
+Vedi Postgres.
 
-### routing
+
+### Routing
 
 Lo stack _routing_ contiene i servizi necessari al routing dei pacchi, contiene VROOM e ORS.
 
 Prima di tutto bisogna scaricare le mappe
-```
-mkdir -p ~/vroom-osrm/data
+
+```bash
+#mkdir -p /home/pi/smister/routing/data
 wget https://download.geofabrik.de/europe/italy/nord-est-latest.osm.pbf -O ~/vroom-osrm/data/map.osm.pbf
-
 ```
 
-Dopodiché bisogna eseguire questo container per preparare le mappe
+Dopodiché bisogna eseguire questo container per preparare le mappe. Questa è un operazione che può essere fatta anche a mano se non si vuole creare il container
 
 ```yaml
-version: '3.8'
-
 services:
   osrm-prep:
     image: osrm/osrm-backend
@@ -123,9 +130,8 @@ services:
         osrm-contract /data/map.osrm
       "
     volumes:
-      - /home/thomas/vroom-osrm/data:/data
+      - /home/pi/dockerservices/routing/map:/data
     restart: "no"
-
 ```
 
 Una volta eseguito è meglio eliminarlo.
@@ -133,15 +139,14 @@ Una volta eseguito è meglio eliminarlo.
 A questo punto è possibile installare i servizi di routing.
 
 ```yaml
-version: '3.8'
-
 services:
   osrm:
     network_mode: host ## todo
     image: osrm/osrm-backend
     command: osrm-routed /data/map.osrm
     volumes:
-      - /home/thomas/vroom-osrm/data:/data
+      - /home/pi/dockerservices/routing/osrm:/config
+      - /home/pi/dockerservices/routing/map:/data
     ports:
       - "5000:5000"
     restart: unless-stopped
@@ -153,6 +158,8 @@ services:
       - VROOM_ROUTER=osrm
       - OSRM_HOST=osrm
       - OSRM_PORT=5000
+    volumes:
+      - /home/pi/dockerservices/routing/vroom:/config
     ports:
       - "3100:3000"
     depends_on:
