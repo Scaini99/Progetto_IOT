@@ -114,8 +114,8 @@ Lo stack _routing_ contiene i servizi necessari al routing dei pacchi, contiene 
 Prima di tutto bisogna scaricare le mappe
 
 ```bash
-#mkdir -p /home/pi/smister/routing/data
-wget https://download.geofabrik.de/europe/italy/nord-est-latest.osm.pbf -O ~/vroom-osrm/data/map.osm.pbf
+mkdir  /home/pi/smister/dockerservices/routing/map
+wget https://download.geofabrik.de/europe/italy/nord-est-latest.osm.pbf -O /home/pi/dockerservices/routing/map/map.osm.pbf
 ```
 
 Dopodiché bisogna eseguire questo container per preparare le mappe. Questa è un operazione che può essere fatta anche a mano se non si vuole creare il container
@@ -130,11 +130,11 @@ services:
         osrm-contract /data/map.osrm
       "
     volumes:
-      - /home/pi/dockerservices/routing/map:/data
+      - /home/pi/smister/dockerservices/routing/map:/data
     restart: "no"
 ```
 
-Una volta eseguito è meglio eliminarlo.
+Bisogna aspettare qualche minuto che estragga le mappe, controlla sul log illivello di avanzamento. Una volta terminato di eseguire questo container non è più indispensabile.
 
 A questo punto è possibile installare i servizi di routing.
 
@@ -145,8 +145,8 @@ services:
     image: osrm/osrm-backend
     command: osrm-routed /data/map.osrm
     volumes:
-      - /home/pi/dockerservices/routing/osrm:/config
-      - /home/pi/dockerservices/routing/map:/data
+      - /home/pi/smister/dockerservices/routing/osrm:/config
+      - /home/pi/smister/dockerservices/routing/map:/data
     ports:
       - "5000:5000"
     restart: unless-stopped
@@ -159,7 +159,7 @@ services:
       - OSRM_HOST=osrm
       - OSRM_PORT=5000
     volumes:
-      - /home/pi/dockerservices/routing/vroom:/config
+      - /home/pi/smister/dockerservices/routing/vroom:/config
     ports:
       - "3100:3000"
     depends_on:
