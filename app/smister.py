@@ -51,13 +51,16 @@ except NameError:
 
 vroom_input= vroom_utils.input.Input()
 
+##TODO: max pacchi per veicolo potrebbe essere i pacchi da consegnare oggi / NR_OF_VEHICLES
+max_pachi= 3
+
 ## inizializzazione flotta con i veicoli disponibili
 for i in range(constants.NR_OF_VEHICLES):
-    vehicle = vroom_utils.vehicle.Vehicle(i+1, 10, constants.BASE_COORD, constants.BASE_COORD)
+    vehicle = vroom_utils.vehicle.Vehicle(i+1, max_pacchi, constants.BASE_COORD, constants.BASE_COORD)
     vroom_input.add_vehicle(vehicle)
 
 cur = database.cursor()
-cur.execute("SELECT numero_ordine, cap, provincia, comune, via, civico, interno FROM dati_spedizione")
+cur.execute("SELECT numero_ordine, cap, provincia, comune, via, civico, interno FROM pacco")
  
 for row in cur.fetchall():
     job_id= row[0]
@@ -84,20 +87,23 @@ response = requests.post(
 
 json_response = json.loads(response.text)
 
+print(response.text)
 
-for step in json_response['routes'][0]['steps']:
-    if step['type'] == 'job':
-        numero_ordine = step['id']
-        veicolo_assegnato = json_response['routes'][0]['vehicle']
-        stato = 'in_magazzino'
-        ultimo_aggiornamento = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-        cur.execute(
-            "INSERT INTO consegna (numero_ordine, veicolo_assegnato) VALUES (%s, %s)",
-            (numero_ordine, veicolo_assegnato)
-        )
-        #aggiungere riga di aggiornamento e lo stato del pacco.
+for route in json_response['routes']:
+    veicolo_assegnato = route['vehicle']
+    for step in route['steps']:
+        if step['type'] == 'job':
+            numero_ordine = step['id']
+
+            cur.execute(
+                "INSERT INTO consegna (numero_ordine, veicolo_assegnato) VALUES (%s, %s)",
+                (numero_ordine, veicolo_assegnato)
+            )
+
 database.commit()
+
+
 
 
 ## Smistamento fisico
