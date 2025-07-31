@@ -117,5 +117,61 @@ database.commit()
 ## POST: table consegna aggiornata
 ##TODO:
 # tipo creare tutto
+"""
+pseudo:
+    /*inizializzate in constants*/
+    LIST_ECHO_PINS
+    LIST_TRIGGER_PINS
+    LIST_SERVO_PINS
 
+    conveyorsistem(conveypyengine)
+
+    nr_postazioni= NR_OF_VEHICLES
+    
+    // aggiunge sortingstations al sistema di smistamento
+    for i in 1..nr_postazioni{
+        sortingstation= New Sortingstation(i, LIST_TRIGGER_PIN[i], LIST_ECHO_PIN[i], LIST_SERVO_PINS[i])
+        conveyorsistem.add_sortingstation(sortingstation)
+    }
+
+    // costruito il sistema di smistamento
+
+    while pacchi_da_smistare > 0{
+
+        id= scannerizza_fotocamera()
+
+        // già, non sto parallelizzado, sono proprio un marpione
+        // cmq
+        // se la fotocamera legge un valore, aggiorna le relative postazioni di smistamento
+        if id!= null{
+            for i in 1..id{
+                // funziona se passato by reference
+                sortingstation= conveyorsistem.get_sortingstation(i)
+
+                if i < id {
+                    sortingstation.enqueue(False)
+                }if i == id {
+                    sortingstation.enqueue(True)
+                }else {
+                    //errore... 
+                }
+
+            }
+        }
+
+        // le postazioni controllano se gli passa un pacco davanti
+        for i in 1..nr_postazioni{
+            postazione= coveyorsystem.get_sortingstation(i)
+
+            if postazione.is_passing(){
+                azione= postazione.dequeue()
+
+                if azione == True{
+                    postazione.push_package()
+                }
+            }
+        }
+        
+    }
+"""
 
