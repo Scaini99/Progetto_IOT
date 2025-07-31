@@ -1,23 +1,6 @@
 # sMister
 
 ## Struttura progetto
-TODO: da implementare!!
-
-sMister/
-├── dockerservices/
-│   ├── portainer/
-│   │   └── ...
-│   ├── database/
-│   │   └── ...
-│   └── routing/
-│       └── ...
-└── program/
-    ├── custom_lib/
-    │   └── ...
-    ├── examples/
-    │   └── ...
-    ├── smister.py
-    └── constants.py
 
 NB: gitignore su dockerservices: questa cartella serve solo come root per i servizi docker, è da aggiornare anche nei docker.
 
@@ -51,4 +34,20 @@ Una volta calcolato ciò, il sistema deve riconoscere l'id del pacco su un nastr
 
 ## Fasi 
 
-Il sistema funziona in due fasi separate. Durante il primo momento vengono creati i database di supporto contenenti le info per lo smistamento. Durante la seconda fase i pacchi vengono fisicamente smistati.
+Il sistema funziona in varie fasi separate e sequenziali.
+
+### Requisiti
+
+I requisiti perchè il sistema possa funzionare sono quelli di avere una connessione ad un database con le informazioni riguardanti i pacchi presenti in magazzino. È necessario che ogni pacco abbia un codice univoco, un indirizzo di spedizione e uno stato che indica se il pacco sia ancora da consegnare o meno (ritiri in sede, consegne mancate, ...). 
+
+### Fase 2
+
+Una volta avvenuta la connessione al database, _sMister_ interroga il database sui pacchi che abbiano il flag specifico per la consegna. Utilizzando i dati ricevuti ricava le coordinate geografiche delle consegne e, in base ai veicoli disponibili, compone un messaggio per il servizio di routing _VROOM_.
+
+### Fase 3
+
+Il messaggio generato durante la fase precedente viene inviato al servizio di routing in locale. Quest'ultimo ritorna una risposta che viene elaborata per inserire nel database le informazioni riguardanti la consegna come la baia di carico fisica verso cui verrà rediretto il pacco. Questa seconda tabella nel database funge da storico delle consegne per ogni singolo pacco e può essere espansa per contenere diverse metriche sulle consegne effettuate. 
+
+### Fase 4
+
+L'ultima fase prevede lo smistamento fisico dei pacchi tramite un nastro trasportatore. Gli attori principali di questa fase sono il driver per attivare il nastro, il sistema di riconoscimento tramite fotocamera e le postazioni di smistamento fisiche, equipaggiate con un servomotore e un sensore di prossimità, che deviano il pacco nella corretta baia di carico. Ogni pacco viene scannerizzato da una fotocamera che ne legge il codice identificativo e, tramite un complicato sistema di specchi e leve, notifica alle postazioni di smistamento l’azione da eseguire: ignorare il pacco o spingerlo verso la baia di carico.
