@@ -18,12 +18,23 @@ Un pacco deve finire nella posizione n di m (con n <= m), allora nelle code dell
     - nelle postazioni n+1 ... m non verrà inserito alcun valore (il pacco non lo vedranno mais)
 
 【=◈︿◈=】:A mio avviso, trattasi di metodo alquanto convoluto
-La mia onesta reazione: ¯\_(ツ)_/¯
+La mia onesta reazione: ¯\_(ツ)_/¯. Si, questo commento da warnings su python....
 """
 
-import RPi.GPIO as GPIO
+## questo accrocchio server per testare al di fuori di un rpi
+import platform
+
+if platform.machine().startswith("arm") and platform.system() == "Linux":
+    import RPi.GPIO as GPIO
+    from gpiozero import Servo
+else:
+    from custom_lib.conveyoryeeter.fake_gpio import GPIO
+    from custom_lib.conveyoryeeter.fake_servo import FakeServo
+    Servo = FakeServo
+## fine accrocchio
+
 from time import sleep, time
-from gpiozero import Servo
+
 
 class Sortingstation:
 
