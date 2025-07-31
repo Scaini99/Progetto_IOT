@@ -5,8 +5,9 @@
 
 ## Import librerie
 
-import custom_lib.vroom_utils as vroom_utils
-from datetime import datetime
+import custom_lib.vroom_utils as vroom_utils        # interfaccia con vroom
+import custom_lib.conveyoryeeter as conveyoryeeter  # nastro trasportatore 
+from datetime import datetime                   
 from geopy.geocoders import Nominatim
 
 geolocator = Nominatim(user_agent="sMister", timeout=10) # ricerca indirizzi
@@ -52,7 +53,7 @@ except NameError:
 vroom_input= vroom_utils.input.Input()
 
 ##TODO: max pacchi per veicolo potrebbe essere i pacchi da consegnare oggi / NR_OF_VEHICLES
-max_pachi= 3
+max_pacchi= 3
 
 ## inizializzazione flotta con i veicoli disponibili
 for i in range(constants.NR_OF_VEHICLES):
@@ -89,6 +90,8 @@ json_response = json.loads(response.text)
 
 print(response.text)
 
+## strumentopolo ch eci servira piu avanti
+tot_packages=0
 
 for route in json_response['routes']:
     veicolo_assegnato = route['vehicle']
@@ -100,10 +103,9 @@ for route in json_response['routes']:
                 "INSERT INTO consegna (numero_ordine, veicolo_assegnato) VALUES (%s, %s)",
                 (numero_ordine, veicolo_assegnato)
             )
+            tot_packages+=1
 
 database.commit()
-
-
 
 
 ## Smistamento fisico
@@ -117,14 +119,63 @@ database.commit()
 ## POST: table consegna aggiornata
 ##TODO:
 # tipo creare tutto
+
+nr_postazioni= constants.NR_OF_VEHICLES
+
+sorting_stations= []
+
+## inizializzazione manuale delle stazioni di smistamento like a pro
+sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(1, 10, 11, 21))
+sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(2, 12, 13, 22))
+sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(3, 14, 15, 23))
+
+
+## YOOO, entriamo nel ciclo di smistamento vero e proprio, finalmente, 
+## da qua è tutto uno perche non parallelizziamo come dei pros
+## ma comunque il nastro dovrebbe essere abbastanza lento
+## mica siamo amazoz qua
+
+## TODO: AGGIUNGI ATTIVAZIONE NASTRO
+while tot_packages > 0:
+
+    ## prima di tutto legge da fotocamera
+    id = 1001   # TODO, IMPLEMENTARE ROBA FOTOCAMERA, MAGARI IN MANIERA NON BLOCCANTE, SE FOSSE POSSIBELE, PER CORTESIA, MI SAREBBE VERAMENTE UTILE SAI COM'E', POI SENNO SI BLOCCA TUTTO ED E' UN PO' UN PROBLEMA, QUINDI SE RIESCI FAI IN MODO CHE QUESTA CHIAMATA NON BLOCCHI IL RESTO DELL'ESECUZIONE DEL PROGRAMMA
+                # grazie :)
+
+    loading_bay= 1 # selectfrom"table" la loadingbay dedicata, potevamo farlo senza scomodare il db? si. sarebbe stato piu' efficente? si. ho voglia di implementarlo ora? no, il db fa figo
+
+    if id!= None:
+        print(id)
+        for i in range(loading_bay):
+            sorting_station= sorting_stations[i]
+
+            if i < loading_bay:
+                sorting_station.enqueue(False)
+            if i == loading_bay :
+                sorting_station.enqueue(True)
+            else:
+               print("err") 
+
+    ## ora controlliamo le postazioni varie per vedere se c'e' un pacco davanti
+    for i in range(nr_postazioni):
+        sorting_station= sorting_stations[i]
+
+        if sorting_station.is_passing():
+            azione= sorting_station.dequeue()
+            if azione == True:
+                sorting_station.push_package()
+    tot_packages=0## eliminami poi
+
 """
 pseudo:
+
+    QUESTO PSEUDO E' DA CONTROLLARE PER SPUNTI FUTURI, ORA E' UN PO OUTDATED
     /*inizializzate in constants*/
     LIST_ECHO_PINS
     LIST_TRIGGER_PINS
     LIST_SERVO_PINS
 
-    conveyorsistem(conveypyengine)
+    conveyorsistem(conveypinengine)
 
     nr_postazioni= NR_OF_VEHICLES
     
