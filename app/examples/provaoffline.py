@@ -30,9 +30,9 @@ print("costruisco il grafo")
 osm = OSM(PBF_PATH)
 print("caricato file")
 #si generano probemi co n la funzione edges, sarebbe da vedere qual'è il problema
-edges = osm.get_network(network_type="walking")  # o "driving", "cycling"
+edges = osm.get_network(network_type="driving")  # o "driving", "cycling"
 print("fatto")
-#G = get_networkx_graph(edges, graph_type="networkx", directed=True)
+G = edges.to_networkx()
 
 # === STEP 3: Nodo più vicino ===
 print("ricerco il nodo")
