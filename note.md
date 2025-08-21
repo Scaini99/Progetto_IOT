@@ -21,13 +21,29 @@ Obiettivi del progetto
 
 Per quanto riguarda la piattaforma hardware, si è scelto di utilizzare un Raspberry Pi 5 ovvero un single board computer sufficientemente prestante da supportare un sistema operativo e dotato di pin GPIO utili per il collegamento di componenti esterni. 
 
-TODO: schema hardware
+La lettura dei codici identificativi dei pacchi viene eseguita da una telecamera USB, mentre l'hardware per lo smistamento fisico dei pacchi è stato collegato tramite l'interfaccia GPIO.
+
+La componentistica utilizzata è:
+
+- stepper: attiva il nastro trasportatore 
+- sensore ad ultrasuoni: rileva il passaggio del pacco davanti alla postazione di smistamento relativa alla baia di carico
+- un'altro tipo di motore: motore del diverter che spinge il pacco verso la zona del veicolo della consegna
+
+Per motivi di costo si è deciso di non utilizzare telecamere davanti ad ogni postazione di smistamento e di utilizzare dei sensori ad ultrasuoni che sono più economici e facili da reperire. Sensori laser sarebbero stati equivalenti, tuttavia non erano disponibili al momento dell'assemblaggio.
+
+TODO: SCHEMA HARDWARE, COMPLETARE SPECIFICHE HARDWARE
 
 ### Software
 
 Il core del progetto è stato sviluppato in Python. Questo linguaggio è stato scelto per via della sua facilità di prototipazione e dell'ampia disponibilità di librerie.
 
-TODO: metodo software
+Per garantire un approccio modulare e flessibile sono state sviluppate due librerie custom: `vroom_utils` e `conveyoryeeter`.
+
+Vroom_utils è la libreria che astrae la comunicazione con i servizi di routing. Funge da interfaccia per le componenti principali di Vroom, come `job` e `vehicle`,e viene usata per generare le richieste con metodi ad alto livello che rendono il codice principale più leggibile.
+
+Conveyoryeeter è la libreria che si occupa di astrarre a livello software i componenti hardware del sistema di smistamento. Le periferiche hardware come i sensori ad ultrasuoni, il motore del nastro trasportatore e i motori per i diverter sono gestiti tutti da questa libreria. Ogni stazione è composta da un sensore di rilevazione del pacco e da un diverter. Grazie ad uno stato stato interno il sistema è in grado di capire, al passaggio di un pacco, se questo deve essere deviato verso la relativa baia di carico o se deve essere lasciato passare.
+
+TODO: SCHEMA SOFTWARE
 
 ### Servizi
 
@@ -53,17 +69,21 @@ Il sistema funziona in varie fasi separate e sequenziali.
 
 ### Requisiti
 
-I requisiti perchè il sistema possa funzionare sono quelli di avere una connessione ad un database con le informazioni riguardanti i pacchi presenti in magazzino. È necessario che ogni pacco abbia un codice univoco, un indirizzo di spedizione e uno stato che indica se il pacco sia ancora da consegnare o meno (ritiri in sede, consegne mancate, ...). 
+I requisiti perché il sistema possa funzionare sono quelli di avere una connessione ad un database con le informazioni riguardanti i pacchi presenti in magazzino. È necessario che ogni pacco abbia un codice univoco, un indirizzo di spedizione e uno stato che indica se il pacco sia ancora da consegnare o meno (ritiri in sede, consegne mancate, ...). 
 
 ### Fase 1
 
-Una volta avvenuta la connessione al database, _sMister_ interroga il database sui pacchi che abbiano il flag specifico per la consegna. Utilizzando i dati ricevuti ricava le coordinate geografiche delle consegne e, in base ai veicoli disponibili, compone un messaggio per il servizio di routing _VROOM_.
+Una volta avvenuta la connessione al database, _sMister_ lo interroga richiedendo i pacchi con il flag specifico per la consegna in data odierna. 
 
 ### Fase 2
 
-Il messaggio generato durante la fase precedente viene inviato al servizio di routing in locale. Quest'ultimo ritorna una risposta che viene elaborata per inserire nel database le informazioni riguardanti la consegna come la baia di carico fisica verso cui verrà rediretto il pacco. Questa seconda tabella nel database funge da storico delle consegne per ogni singolo pacco e può essere espansa per contenere diverse metriche sulle consegne effettuate. 
+Utilizzando i dati ricevuti nella fase precedente, il sistema ricava le coordinate geografiche delle consegne e, in base ai veicoli disponibili, compone un messaggio per il servizio di routing _VROOM_ utilizzando la libreria `vroom_utils`.
 
 ### Fase 3
 
-L'ultima fase prevede lo smistamento fisico dei pacchi tramite un nastro trasportatore. Gli attori principali di questa fase sono il driver per attivare il nastro, il sistema di riconoscimento tramite fotocamera e le postazioni di smistamento fisiche, equipaggiate con un servomotore e un sensore di prossimità, che deviano il pacco nella corretta baia di carico. Ogni pacco viene scannerizzato da una fotocamera che ne legge il codice identificativo e, tramite un complicato sistema di specchi e leve, notifica alle postazioni di smistamento l’azione da eseguire: ignorare il pacco o spingerlo verso la baia di carico.
+Il messaggio generato durante la fase precedente viene inviato al servizio di routing in locale. Quest'ultimo risponde con un messaggio contente le informazioni relative al percorso di ogni veicolo per le consegne in base ai pacchi che gli sono stati assegnati. Queste informazioni vengono lette e salvate nel database in modo da essere usate nella fase fase successiva.
+
+### Fase 4
+
+L'ultima fase prevede lo smistamento fisico dei pacchi tramite un nastro trasportatore. Il motore del sistema di smistamento vien e attivato e i pacchi cominciano a scorrere davanti alla fotocamera che ne legge l'id e, grazie alla libreria `conveyoryeeter`, comunica alle postazioni in modo che sappiano come gestire un pacco che passerà loro davanti. Nel mentre le postazioni scannerizzano l'area antistante per rilevare il passaggio di un pacco. Tramite un complicato sistema di specchi e leve, sono in grado di decidere se ignorare il pacco o spingerlo verso la baia di carico.
 
