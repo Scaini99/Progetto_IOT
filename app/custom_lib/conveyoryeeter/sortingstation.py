@@ -100,3 +100,6 @@ class Sortingstation:
             return self.action_queue.pop(0)
         else:
             return None
+    
+    def queue_length(self) -> int:
+        return len(self.action_queue)

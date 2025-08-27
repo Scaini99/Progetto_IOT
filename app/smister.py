@@ -137,7 +137,7 @@ sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(3, 14, 15, 
 
 ## TODO: AGGIUNGI ATTIVAZIONE NASTRO
 while tot_packages > 0:
-
+    camera= conveyoryeeter.watchmypack.WatchMyPack
     ## prima di tutto legge da fotocamera
     id = 1001   # TODO, IMPLEMENTARE ROBA FOTOCAMERA, MAGARI IN MANIERA NON BLOCCANTE, SE FOSSE POSSIBELE, PER CORTESIA, MI SAREBBE VERAMENTE UTILE SAI COM'E', POI SENNO SI BLOCCA TUTTO ED E' UN PO' UN PROBLEMA, QUINDI SE RIESCI FAI IN MODO CHE QUESTA CHIAMATA NON BLOCCHI IL RESTO DELL'ESECUZIONE DEL PROGRAMMA
                 # grazie :)
