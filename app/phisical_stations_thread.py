@@ -14,12 +14,12 @@ def phisical_stations(queue: Queue, stop_event: threading.Event):
     nr_postazioni= constants.NR_OF_VEHICLES
 
 
-    ## inizializzazione postazioni
-    ## TODO: PIN
+    ## inizializzazione postazioni (position, trigger, echo, servo)
+    
     sorting_stations= []
-    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(1, 10, 11, 21))
-    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(2, 12, 13, 22))
-    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(3, 14, 15, 23))
+    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(1, constants.PIN_TRIGGER_1, constants.PIN_ECHO_1, constants.PIN_SERVO_1))
+    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, constants.PIN_SERVO_2))
+    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(3, constants.PIN_TRIGGER_3, constants.PIN_ECHO_3, constants.PIN_SERVO_3))
     
     while True:
         message= None

@@ -24,13 +24,10 @@ La mia onesta reazione: ¯\_(ツ)_/¯. Si, questo commento da warnings su python
 ## questo accrocchio server per testare al di fuori di un rpi
 import platform
 
-if platform.machine().startswith("arm") and platform.system() == "Linux":
-    import RPi.GPIO as GPIO
-    from gpiozero import Servo
-else:
-    from custom_lib.conveyoryeeter.fake_gpio import GPIO
-    from custom_lib.conveyoryeeter.fake_servo import FakeServo
-    Servo = FakeServo
+
+import RPi.GPIO as GPIO
+from gpiozero import Servo
+
 ## fine accrocchio
 
 from time import sleep, time

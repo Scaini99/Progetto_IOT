@@ -4,6 +4,11 @@ import time
 from queue import Queue, Empty
 from pyzbar import pyzbar
 import psycopg2
+from gpiozero import Device
+from gpiozero.pins.pigpio import PiGPIOFactory
+import RPi.GPIO as GPIO
+Device.pin_factory = PiGPIOFactory()
+
 
 from custom_lib.conveyoryeeter.watchmypack import WatchMyPack
 import constants
@@ -11,6 +16,7 @@ import constants
 ## thread 
 from qr_scan_thread import qr_reader
 from phisical_stations_thread import phisical_stations
+from conveyor_thread import conveyor_belt
 
 
 ## Debug: printa il msg che dovrebbe smistare i pacchi
@@ -43,15 +49,23 @@ def main():
     ## coda di pacchi scannerizzati:
     ## elementi: (current_id, vehicle_id, loading_bay)
     queue = Queue()
+    conveyor_stop_event = threading.Event()
     stop_event = threading.Event()
 
+    conveyor_thread = threading.Thread(target=conveyor_belt, args=(conveyor_stop_event,))
     reader_thread = threading.Thread(target=qr_reader, args=(queue, stop_event, database))
     printer_thread = threading.Thread(target=phisical_stations, args=(queue, stop_event))
-
+     
+    conveyor_thread.start()
     reader_thread.start()
     printer_thread.start()
 
-    reader_thread.join()
+    print("dormo 5 sec")
+    time.sleep(5)
+    conveyor_stop_event.set()
+    
+    ##conveyor_thread.join() 
+    ##reader_thread.join()
     printer_thread.join()
     print("Terminato.")
 
