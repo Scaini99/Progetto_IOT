@@ -10,9 +10,11 @@ import constants
 
 ## thread 
 from qr_scan_thread import qr_reader
+from phisical_stations_thread import phisical_stations
 
 
-## Push station
+## Debug: printa il msg che dovrebbe smistare i pacchi
+## phisical_station testuale
 def qr_printer(queue: Queue, stop_event: threading.Event):
     while not stop_event.is_set():
         try:
@@ -38,12 +40,13 @@ def main():
     
     
     
-    
+    ## coda di pacchi scannerizzati:
+    ## elementi: (current_id, vehicle_id, loading_bay)
     queue = Queue()
     stop_event = threading.Event()
 
     reader_thread = threading.Thread(target=qr_reader, args=(queue, stop_event, database))
-    printer_thread = threading.Thread(target=qr_printer, args=(queue, stop_event))
+    printer_thread = threading.Thread(target=phisical_stations, args=(queue, stop_event))
 
     reader_thread.start()
     printer_thread.start()

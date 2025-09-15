@@ -21,7 +21,7 @@ def qr_reader(queue: Queue, stop_event: threading.Event, database):
             cur.execute("SELECT veicolo_assegnato FROM consegna WHERE numero_ordine = %s", (current_id,))
         
             result = cur.fetchone()
-            vehicle_id = result[0]
+            vehicle_id = result[0] ## 'id sia lo stesso della bay
             loading_bay= result[0]
 
             print(f"pacco: {current_id}\nveicolo: {vehicle_id}\nloading bay: {loading_bay}")

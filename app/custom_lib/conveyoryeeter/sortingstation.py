@@ -103,3 +103,6 @@ class Sortingstation:
     
     def queue_length(self) -> int:
         return len(self.action_queue)
+
+    def queue_print(self):
+        print(f"queue: {self.action_queue}")
