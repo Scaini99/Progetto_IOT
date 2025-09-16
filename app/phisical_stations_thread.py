@@ -1,9 +1,14 @@
-## Thread che spinge
-## gestisce le push stations
-## dalla queue deve estrarre un elemento (current_id, vehicle_id, loading_bay)
-## e tramite loading_bay gestire la logica
-## inoltre
-## se sente passare un pacco davanti ad una station deve decidere se deviarlo o meno
+"""
+Thread di gestione delle postazioni 'sorting station': rilevano e spingono il carico verso la baia di carico corretta.
+
+- crea sorting_station
+- controlla una coda di pacchi scannerizzati
+- inserisce il pacco nella coda della sorting station corretta
+TODO
+- per ogni stazione controlla se passa un pacco davanti
+- se necessario devia il pacco
+
+"""
 from queue import Queue
 import threading
 import custom_lib.conveyoryeeter as conveyoryeeter  # nastro trasportatore

@@ -1,3 +1,12 @@
+"""
+Thread che permette di ricavare un qr code da un pacco
+
+- crea un istanza di una fotocamera (WatchMyPack)
+- legge il qr code dei pacchi che passano davanti
+- cerca il codice in magazzino
+- lo inserisce in una coda perchè venga smistato dalle sorting station (in un altro thread)
+"""
+
 import threading
 from queue import Queue
 
@@ -21,7 +30,7 @@ def qr_reader(queue: Queue, stop_event: threading.Event, database):
             cur.execute("SELECT veicolo_assegnato FROM consegna WHERE numero_ordine = %s", (current_id,))
         
             result = cur.fetchone()
-            vehicle_id = result[0] ## 'id sia lo stesso della bay
+            vehicle_id = result[0] # id lo stesso della bay
             loading_bay= result[0]
 
             print(f"pacco: {current_id}\nveicolo: {vehicle_id}\nloading bay: {loading_bay}")
