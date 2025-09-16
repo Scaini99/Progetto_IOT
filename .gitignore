@@ -491,7 +491,7 @@ TSWLatexianTemp*
 # End of https://www.toptal.com/developers/gitignore/api/latex
 
 # Ignora tutti i file con estensione .bkp: drawio
-*.pgb
+*.bkp
 
 dockerservices/portainer/*
 dockerservices/database/*
