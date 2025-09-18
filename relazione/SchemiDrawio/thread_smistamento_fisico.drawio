@@ -221,7 +221,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="sxwi9XY4MzIKeO4Q3-A9-12" value="Seleziona SortingStation" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="sxwi9XY4MzIKeO4Q3-A9-12" value="Seleziona SortingStation" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="391.88" y="410" width="128.12" height="40" as="geometry" />
         </mxCell>
         <mxCell id="sxwi9XY4MzIKeO4Q3-A9-24" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="UT6nP9ZxfCxlTdFqshKj-16" target="sxwi9XY4MzIKeO4Q3-A9-12">
@@ -251,7 +251,7 @@
             <mxPoint x="350" y="920" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="sxwi9XY4MzIKeO4Q3-A9-33" value="Seleziona SortingStation" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="sxwi9XY4MzIKeO4Q3-A9-33" value="Seleziona SortingStation" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
           <mxGeometry x="104" y="770" width="126" height="40" as="geometry" />
         </mxCell>
         <mxCell id="sxwi9XY4MzIKeO4Q3-A9-34" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="UT6nP9ZxfCxlTdFqshKj-17" target="sxwi9XY4MzIKeO4Q3-A9-33">
