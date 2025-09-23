@@ -12,6 +12,7 @@ from queue import Queue
 
 from custom_lib.conveyoryeeter.watchmypack import WatchMyPack
 import constants
+import time
 
 
 def qr_reader(queue: Queue, stop_event: threading.Event, database):
@@ -37,3 +38,5 @@ def qr_reader(queue: Queue, stop_event: threading.Event, database):
 
             message = (current_id, vehicle_id, loading_bay)
             queue.put(message)
+    
+        time.sleep(0.01)

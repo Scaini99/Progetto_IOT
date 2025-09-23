@@ -1,7 +1,7 @@
 ## sMister
 ##
 ## Script per la gestione delle consegne
-##
+## venv: source venv/bin/activate
 
 ## Import librerie
 

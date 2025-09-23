@@ -1,22 +1,18 @@
-"""
-Thread di gestione delle postazioni 'sorting station': rilevano e spingono il carico verso la baia di carico corretta.
-
-- crea sorting_station
-- controlla una coda di pacchi scannerizzati
-- inserisce il pacco nella coda della sorting station corretta
-TODO
-- per ogni stazione controlla se passa un pacco davanti
-- se necessario devia il pacco
-
-"""
+## Thread che spinge
+## gestisce le push stations
+## dalla queue deve estrarre un elemento (current_id, vehicle_id, loading_bay)
+## e tramite loading_bay gestire la logica
+## inoltre
+## se sente passare un pacco davanti ad una station deve decidere se deviarlo o meno
 from queue import Queue
 import threading
 import custom_lib.conveyoryeeter as conveyoryeeter  # nastro trasportatore
 import constants
+import time
 
 
 def phisical_stations(queue: Queue, stop_event: threading.Event):
-    nr_postazioni= constants.NR_OF_VEHICLES
+    nr_postazioni= 3 # constants.NR_OF_VEHICLES
 
 
     ## inizializzazione postazioni (position, trigger, echo, servo)
@@ -26,11 +22,12 @@ def phisical_stations(queue: Queue, stop_event: threading.Event):
     sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, constants.PIN_SERVO_2))
     sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(3, constants.PIN_TRIGGER_3, constants.PIN_ECHO_3, constants.PIN_SERVO_3))
     
-    while True:
+    while not stop_event.is_set():
         message= None
 
         ## message: (current_id, vehicle_id, loading_bay)
         if not queue.empty():
+            print("phisical_station_thread: FOUND MSG")
             message = queue.get(timeout=0.05)
 
             loading_bay= message[2]
@@ -49,5 +46,14 @@ def phisical_stations(queue: Queue, stop_event: threading.Event):
             ## debug code      
             ##for i in range(nr_postazioni):
             ##    print(f"sorting station {i}: {sorting_stations[i].action_queue}")
-                    
+
+        for i in range(nr_postazioni):
+            sorting_station= sorting_stations[i]
+            if sorting_station.is_passing():
+                instruction= sorting_station.dequeue()
+                print(f"phisical_station_thread: SMTH FOUND, INSTRUCTION: {instruction}")
+                if instruction:
+                    sorting_station.push_package()
+        
+        time.sleep(0.01)
 

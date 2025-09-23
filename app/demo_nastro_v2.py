@@ -50,23 +50,25 @@ def main():
     ## elementi: (current_id, vehicle_id, loading_bay)
     queue = Queue()
     conveyor_stop_event = threading.Event()
-    stop_event = threading.Event()
+    reader_stop_event = threading.Event()
+    phisical_stations_stop_event = threading.Event()
 
     conveyor_thread = threading.Thread(target=conveyor_belt, args=(conveyor_stop_event,))
-    reader_thread = threading.Thread(target=qr_reader, args=(queue, stop_event, database))
-    printer_thread = threading.Thread(target=phisical_stations, args=(queue, stop_event))
+    reader_thread = threading.Thread(target=qr_reader, args=(queue, reader_stop_event, database))
+    phisical_stations_thread = threading.Thread(target=phisical_stations, args=(queue, phisical_stations_stop_event))
      
     conveyor_thread.start()
     reader_thread.start()
-    printer_thread.start()
+    phisical_stations_thread.start()
 
     print("dormo 5 sec")
-    time.sleep(5)
+    ##time.sleep(5)
+    print("faccio finta che i pacchi siano finiti")
     conveyor_stop_event.set()
     
     ##conveyor_thread.join() 
     ##reader_thread.join()
-    printer_thread.join()
+    ##phisical_stations.join()
     print("Terminato.")
 
 if __name__ == "__main__":

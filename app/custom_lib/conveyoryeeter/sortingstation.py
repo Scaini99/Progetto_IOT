@@ -54,28 +54,28 @@ class Sortingstation:
         sleep(0.00001)
         GPIO.output(self.trigger, False)
 
-        start = time()
-        while GPIO.input(self.echo) == 0:
-            start = time()
+        timeout = 0.02  # 20 ms
 
-        stop = time()
+        start_wait = time()
+        while GPIO.input(self.echo) == 0:
+            if time() - start_wait > timeout:
+                return False
+        start = time()
+
         while GPIO.input(self.echo) == 1:
-            stop = time()
+            if time() - start > timeout:
+                return False
+        stop = time()
 
         durata = stop - start
-        distanza = (durata * 34300) / 2 ## cm
-        
-        ## Se il pacco passa fra i 5 cm e i 30 cm sta passando davanti
-        ## NB: distanza infinita: il pacco passa troppo vicino o il sengnale si perde
-        
-        if 5 < distanza and distanza < 30:
-            print("Package passing on station: {}", self.position)
-            return True
-        else:
-            return False
+        distanza = (durata * 34300) / 2  # cm
+
+        return 5 < distanza < 30
+
 
     ## Da tarare meglio il movimento...
     def push_package(self):
+            print("PUSHING")
             self.servo.mid()
             sleep(1)
             self.servo.max()
