@@ -25,13 +25,15 @@ La lettura dei codici identificativi dei pacchi viene eseguita da una telecamera
 
 La componentistica utilizzata è:
 
-- stepper: attiva il nastro trasportatore 
-- sensore ad ultrasuoni: rileva il passaggio del pacco davanti alla postazione di smistamento relativa alla baia di carico
-- un'altro tipo di motore: motore del diverter che spinge il pacco verso la zona del veicolo della consegna
+- motore stepper: attiva il nastro trasportatore 
+- sensore ad ultrasuoni SR04: rileva il passaggio del pacco davanti alla postazione di smistamento relativa alla baia di carico
+- motore stepper: attiva il diverter che devia il pacco verso la zona del veicolo per la consegna
 
 Per motivi di costo si è deciso di non utilizzare telecamere davanti ad ogni postazione di smistamento e di utilizzare dei sensori ad ultrasuoni che sono più economici e facili da reperire. Sensori laser sarebbero stati equivalenti, tuttavia non erano disponibili al momento dell'assemblaggio.
 
-TODO: SCHEMA HARDWARE, COMPLETARE SPECIFICHE HARDWARE
+![Hardware](relazione/Fritzing/smister_bb.jpg)
+
+TODO: COMPLETARE SPECIFICHE HARDWARE
 
 ### Software
 
@@ -43,7 +45,7 @@ Vroom_utils è la libreria che astrae la comunicazione con i servizi di routing.
 
 Conveyoryeeter è la libreria che si occupa di astrarre a livello software i componenti hardware del sistema di smistamento. Le periferiche hardware come i sensori ad ultrasuoni, il motore del nastro trasportatore e i motori per i diverter sono gestiti tutti da questa libreria. Ogni stazione è composta da un sensore di rilevazione del pacco e da un diverter. Grazie ad uno stato stato interno il sistema è in grado di capire, al passaggio di un pacco, se questo deve essere deviato verso la relativa baia di carico o se deve essere lasciato passare.
 
-TODO: SCHEMA SOFTWARE
+![Software](relazione/SchemiDrawio/sMister-Processo_generale.drawio.png)
 
 ### Servizi
 
@@ -56,6 +58,8 @@ Parte fondamentale del progetto sono i servizi Docker che permettono al sistema 
 - OSRM: motore open source per il calcolo di percorsi stradali
 
 I servizi sono stati organizzati in stack dedicati, in modo da raggruppare componenti funzionalmente simili.
+
+![Servizi](relazione/SchemiDrawio/sMister-Servizi.drawio.png)
 
 ## Funzionamento
 
@@ -86,4 +90,6 @@ Il messaggio generato durante la fase precedente viene inviato al servizio di ro
 ### Fase 4
 
 L'ultima fase prevede lo smistamento fisico dei pacchi tramite un nastro trasportatore. Il motore del sistema di smistamento vien e attivato e i pacchi cominciano a scorrere davanti alla fotocamera che ne legge l'id e, grazie alla libreria `conveyoryeeter`, comunica alle postazioni in modo che sappiano come gestire un pacco che passerà loro davanti. Nel mentre le postazioni scannerizzano l'area antistante per rilevare il passaggio di un pacco. Tramite un complicato sistema di specchi e leve, sono in grado di decidere se ignorare il pacco o spingerlo verso la baia di carico.
+
+![Thread smistamento](relazione/SchemiDrawio/sMister-thread_smistamento_fisico.drawio.png)
 
