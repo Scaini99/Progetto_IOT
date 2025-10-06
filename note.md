@@ -67,27 +67,27 @@ sMister interroga il database per ottenere l'elenco delle consegne previste e ri
 
 Una volta calcolato ciò, il sistema deve riconoscere l'id del pacco su un nastro trasportatore per indirizzarlo verso la baia di carico corretta: questo viene fatto tramite un codice a barre che identifica unicamente ogni pacco. Lungo la linea alcuni attuatori si occupano di consegnare alla zona di carico giusta ogni pacco.
 
-## Fasi 
+### Fasi 
 
 Il sistema funziona in varie fasi separate e sequenziali.
 
-### Requisiti
+#### Requisiti
 
 I requisiti perché il sistema possa funzionare sono quelli di avere una connessione ad un database con le informazioni riguardanti i pacchi presenti in magazzino. È necessario che ogni pacco abbia un codice univoco, un indirizzo di spedizione e uno stato che indica se il pacco sia ancora da consegnare o meno (ritiri in sede, consegne mancate, ...). 
 
-### Fase 1
+#### Fase 1
 
 Una volta avvenuta la connessione al database, _sMister_ lo interroga richiedendo i pacchi con il flag specifico per la consegna in data odierna. 
 
-### Fase 2
+#### Fase 2
 
 Utilizzando i dati ricevuti nella fase precedente, il sistema ricava le coordinate geografiche delle consegne e, in base ai veicoli disponibili, compone un messaggio per il servizio di routing _VROOM_ utilizzando la libreria `vroom_utils`.
 
-### Fase 3
+#### Fase 3
 
 Il messaggio generato durante la fase precedente viene inviato al servizio di routing in locale. Quest'ultimo risponde con un messaggio contente le informazioni relative al percorso di ogni veicolo per le consegne in base ai pacchi che gli sono stati assegnati. Queste informazioni vengono lette e salvate nel database in modo da essere usate nella fase fase successiva.
 
-### Fase 4
+#### Fase 4
 
 L'ultima fase prevede lo smistamento fisico dei pacchi tramite un nastro trasportatore. Il motore del sistema di smistamento vien e attivato e i pacchi cominciano a scorrere davanti alla fotocamera che ne legge l'id e, grazie alla libreria `conveyoryeeter`, comunica alle postazioni in modo che sappiano come gestire un pacco che passerà loro davanti. Nel mentre le postazioni scannerizzano l'area antistante per rilevare il passaggio di un pacco. Tramite un complicato sistema di specchi e leve, sono in grado di decidere se ignorare il pacco o spingerlo verso la baia di carico.
 

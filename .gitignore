@@ -500,3 +500,7 @@ dockerservices/routing/*
 !dockerservices/portainer/.gitkeep
 !dockerservices/database/.gitkeep
 !dockerservices/routing/.gitkeep
+
+# Ignora i pdf 
+
+*.pdf
