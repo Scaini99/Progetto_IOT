@@ -11,7 +11,7 @@ import threading
 import time
 
 def conveyor_belt(stop_event: threading.Event):
-    conveyorbelt_engine = conveyoryeeter.conveyorbeltengine.Conveyorbeltengine(constants.PIN_CTRL_CONVEYOR_BELT)
+    conveyorbelt_engine = conveyoryeeter.conveyorbeltengine.ConveyorBeltEngine(constants.PIN_CTRL_CONVEYOR_BELT)
     print("conveyor_thread: START")
     
     conveyorbelt_engine.start()

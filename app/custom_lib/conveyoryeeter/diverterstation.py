@@ -33,7 +33,7 @@ from gpiozero import Servo
 from time import sleep, time
 
 
-class Sortingstation:
+class DiverterStation:
 
     def __init__(self, position: int, trig_pin, echo_pin, servo_pin):
         self.position= position

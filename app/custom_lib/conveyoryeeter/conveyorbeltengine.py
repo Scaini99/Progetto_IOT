@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-class Conveyorbeltengine:
+class ConveyorBeltEngine:
     def __init__(self, pin_rele):
         self.pin_rele= pin_rele
         GPIO.setmode(GPIO.BCM)

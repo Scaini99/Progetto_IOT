@@ -18,9 +18,9 @@ def phisical_stations(queue: Queue, stop_event: threading.Event):
     ## inizializzazione postazioni (position, trigger, echo, servo)
     
     sorting_stations= []
-    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(1, constants.PIN_TRIGGER_1, constants.PIN_ECHO_1, constants.PIN_SERVO_1))
-    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, constants.PIN_SERVO_2))
-    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(3, constants.PIN_TRIGGER_3, constants.PIN_ECHO_3, constants.PIN_SERVO_3))
+    sorting_stations.append(conveyoryeeter.sortingstation.DiverterStation(1, constants.PIN_TRIGGER_1, constants.PIN_ECHO_1, constants.PIN_SERVO_1))
+    sorting_stations.append(conveyoryeeter.sortingstation.DiverterStation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, constants.PIN_SERVO_2))
+    sorting_stations.append(conveyoryeeter.sortingstation.DiverterStation(3, constants.PIN_TRIGGER_3, constants.PIN_ECHO_3, constants.PIN_SERVO_3))
     
     while not stop_event.is_set():
         message= None
