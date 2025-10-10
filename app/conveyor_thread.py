@@ -10,14 +10,20 @@ import constants
 import threading
 import time
 
-def conveyor_belt(stop_event: threading.Event):
-    conveyorbelt_engine = conveyoryeeter.conveyorbeltengine.ConveyorBeltEngine(constants.PIN_CTRL_CONVEYOR_BELT)
+def conveyor_belt(  qr_scan_thread_done: threading.Event,
+                    phisical_station_thread_done: threading.Event
+                ):
+
+    conveyorbelt_engine = conveyoryeeter.conveyorbeltengine.Conveyorbeltengine(constants.PIN_CTRL_CONVEYOR_BELT)
     print("conveyor_thread: START")
     
     conveyorbelt_engine.start()
     
+    qr_scan_thread_done.wait()
+    phisical_station_thread_done.wait()
 
-    stop_event.wait() 
+    print("conveyor_thread: stopping in 10 seconds")
+    time.sleep(10)
 
     print("conveyor_thread: STOP")
     conveyorbelt_engine.stop()

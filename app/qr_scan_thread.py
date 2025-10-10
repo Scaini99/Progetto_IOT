@@ -15,12 +15,14 @@ import constants
 import time
 
 
-def qr_reader(queue: Queue, stop_event: threading.Event, database):
+def qr_reader(queue: Queue, done_event: threading.Event, database, to_be_smisted: int):
 
     camera = WatchMyPack(camera_id=0)
     prev_id= None
 
-    while not stop_event.is_set():
+    internal_package_counter= 0
+ 
+    while internal_package_counter < to_be_smisted:
         current_id= camera.read_qr_code()
 
         if current_id and current_id != prev_id:
@@ -34,9 +36,13 @@ def qr_reader(queue: Queue, stop_event: threading.Event, database):
             vehicle_id = result[0] # id lo stesso della bay
             loading_bay= result[0]
 
-            print(f"pacco: {current_id}\nveicolo: {vehicle_id}\nloading bay: {loading_bay}")
+            internal_package_counter = internal_package_counter + 1 
+
+            print(f"qr_scan_thread: pacco: {current_id}\nveicolo: {vehicle_id}\nloading bay: {loading_bay}")
 
             message = (current_id, vehicle_id, loading_bay)
             queue.put(message)
-    
+
         time.sleep(0.01)
+    
+    done_event.set()

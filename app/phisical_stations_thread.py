@@ -10,10 +10,9 @@ import custom_lib.conveyoryeeter as conveyoryeeter  # nastro trasportatore
 import constants
 import time
 
-
-def phisical_stations(queue: Queue, stop_event: threading.Event):
+def phisical_stations(queue: Queue, done_event: threading.Event, to_be_smisted: int):
     nr_postazioni= 3 # constants.NR_OF_VEHICLES
-
+    internal_package_counter= 0
 
     ## inizializzazione postazioni (position, trigger, echo, servo)
     
@@ -22,16 +21,18 @@ def phisical_stations(queue: Queue, stop_event: threading.Event):
     diverter_stations.append(conveyoryeeter.sortingstation.DiverterStation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, constants.PIN_SERVO_2))
     diverter_stations.append(conveyoryeeter.sortingstation.DiverterStation(3, constants.PIN_TRIGGER_3, constants.PIN_ECHO_3, constants.PIN_SERVO_3))
     
-    while not stop_event.is_set():
+    while internal_package_counter < to_be_smisted:
         message= None
 
         ## message: (current_id, vehicle_id, loading_bay)
         if not queue.empty():
             print("phisical_station_thread: FOUND MSG")
             message = queue.get(timeout=0.05)
+            internal_package_counter= internal_package_counter +1
 
             loading_bay= message[2]
 
+            ## inserisce le istruzioni nelle code
             for i in range(0, loading_bay):
                
                 diverter_station= diverter_stations[i]
@@ -47,6 +48,7 @@ def phisical_stations(queue: Queue, stop_event: threading.Event):
             ##for i in range(nr_postazioni):
             ##    print(f"sorting station {i}: {diverter_stations[i].action_queue}")
 
+        ## controlla le varie postazioni
         for i in range(nr_postazioni):
             diverter_station= diverter_stations[i]
             if diverter_station.is_passing():
@@ -57,3 +59,4 @@ def phisical_stations(queue: Queue, stop_event: threading.Event):
         
         time.sleep(0.01)
 
+    done_event.set()

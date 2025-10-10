@@ -9,7 +9,6 @@ from gpiozero.pins.pigpio import PiGPIOFactory
 import RPi.GPIO as GPIO
 Device.pin_factory = PiGPIOFactory()
 
-
 from custom_lib.conveyoryeeter.watchmypack import WatchMyPack
 import constants
 
@@ -44,32 +43,43 @@ def main():
     except NameError:
         print("Connessione database non avvenuta")
     
+    cur= database.cursor()
+    cur.execute("SELECT COUNT(*) AS totale_pacchi FROM consegna;")
+    result= cur.fetchone()
+    to_be_smisted= result[0]
     
     
     ## coda di pacchi scannerizzati:
     ## elementi: (current_id, vehicle_id, loading_bay)
     queue = Queue()
-    conveyor_stop_event = threading.Event()
-    reader_stop_event = threading.Event()
-    phisical_stations_stop_event = threading.Event()
+    reader_done_event = threading.Event()
+    phisical_stations_done_event = threading.Event()
 
-    conveyor_thread = threading.Thread(target=conveyor_belt, args=(conveyor_stop_event,))
-    reader_thread = threading.Thread(target=qr_reader, args=(queue, reader_stop_event, database))
-    phisical_stations_thread = threading.Thread(target=phisical_stations, args=(queue, phisical_stations_stop_event))
+    conveyor_thread = threading.Thread(target=conveyor_belt, args=(
+        reader_done_event, ## comunica la fine di qr_scan_thread
+        phisical_stations_done_event ## comunica la fine di phisical_stations_thread
+        ))
+
+    qr_scan_thread = threading.Thread(target=qr_reader, args=(
+        queue, ## canale qr_scan_thread - phisical_stations_thread
+        reader_done_event, ## comunica la sua fine
+        database, ## connessione al db
+        to_be_smisted ## pacchi da smistare in giornata
+        ))
+
+    phisical_stations_thread = threading.Thread(target=phisical_stations, args=(
+        queue, ## canale qr_scan_thread - phisical_stations_thread
+        phisical_stations_done_event, ## comunica la sua fine
+        to_be_smisted ## pacchi da smistare in giornata
+        ))
      
     conveyor_thread.start()
-    reader_thread.start()
+    qr_scan_thread.start()
     phisical_stations_thread.start()
 
-    print("dormo 5 sec")
-    ##time.sleep(5)
-    print("faccio finta che i pacchi siano finiti")
-    conveyor_stop_event.set()
     
-    ##conveyor_thread.join() 
-    ##reader_thread.join()
-    ##phisical_stations.join()
-    print("Terminato.")
+
+    print("Working hard for you...")
 
 if __name__ == "__main__":
     main()
