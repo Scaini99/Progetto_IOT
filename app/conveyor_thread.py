@@ -14,7 +14,7 @@ def conveyor_belt(  qr_scan_thread_done: threading.Event,
                     phisical_station_thread_done: threading.Event
                 ):
 
-    conveyorbelt_engine = conveyoryeeter.conveyorbeltengine.Conveyorbeltengine(constants.PIN_CTRL_CONVEYOR_BELT)
+    conveyorbelt_engine = conveyoryeeter.conveyorbeltengine.ConveyorBeltEngine(constants.PIN_CTRL_CONVEYOR_BELT)
     print("conveyor_thread: START")
     
     conveyorbelt_engine.start()

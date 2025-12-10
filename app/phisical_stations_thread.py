@@ -17,9 +17,9 @@ def phisical_stations(queue: Queue, done_event: threading.Event, to_be_smisted: 
     ## inizializzazione postazioni (position, trigger, echo, servo)
     
     diverter_stations= []
-    diverter_stations.append(conveyoryeeter.sortingstation.DiverterStation(1, constants.PIN_TRIGGER_1, constants.PIN_ECHO_1, constants.PIN_SERVO_1))
-    diverter_stations.append(conveyoryeeter.sortingstation.DiverterStation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, constants.PIN_SERVO_2))
-    diverter_stations.append(conveyoryeeter.sortingstation.DiverterStation(3, constants.PIN_TRIGGER_3, constants.PIN_ECHO_3, constants.PIN_SERVO_3))
+    diverter_stations.append(conveyoryeeter.diverterstation.DiverterStation(1, constants.PIN_TRIGGER_1, constants.PIN_ECHO_1, constants.PIN_SERVO_1))
+    diverter_stations.append(conveyoryeeter.diverterstation.DiverterStation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, constants.PIN_SERVO_2))
+    diverter_stations.append(conveyoryeeter.diverterstation.DiverterStation(3, constants.PIN_TRIGGER_3, constants.PIN_ECHO_3, constants.PIN_SERVO_3))
     
     while internal_package_counter < to_be_smisted:
         message= None
