@@ -77,7 +77,6 @@ def main():
     qr_scan_thread.start()
     phisical_stations_thread.start()
 
-    
 
     print("Working hard for you...")
 
