@@ -16,9 +16,10 @@ def main():
 
     try:
         while True:
-            print("Spingo pacco...")
-            station.push_package()
-            sleep(2)
+            if station.is_passing():
+                print("Pacco rilevato, spingo!")
+                station.push_package()
+                sleep(2)
 
     except KeyboardInterrupt:
         print("\nInterruzione manuale")

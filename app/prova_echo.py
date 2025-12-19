@@ -7,9 +7,10 @@ ECHO = 24
 
 # PARAMETRI
 SOGLIA_CM = 20      # distanza sotto cui consideri "oggetto presente"
-INTERVALLO = 0.1   # tempo tra le misure
+INTERVALLO = 0.1    # tempo tra le misure
 
 GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)  # disabilita warning di pin già usati
 GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 GPIO.output(TRIG, False)
@@ -21,21 +22,26 @@ def misura_distanza():
     time.sleep(0.00001)
     GPIO.output(TRIG, False)
 
+    timeout = 0.04  # 40 ms timeout
     start_time = time.time()
-    timeout = start_time + 0.04  # 40 ms timeout
 
+    start = None
+    stop = None
+
+    # Aspetto che ECHO diventi HIGH
     while GPIO.input(ECHO) == 0:
-        if time.time() > timeout:
+        if time.time() - start_time > timeout:
             return None
-        start = time.time()
+    start = time.time()
 
+    # Aspetto che ECHO torni LOW
     while GPIO.input(ECHO) == 1:
-        if time.time() > timeout:
+        if time.time() - start > timeout:
             return None
-        stop = time.time()
+    stop = time.time()
 
     durata = stop - start
-    distanza = (durata * 34300) / 2
+    distanza = (durata * 34300) / 2  # cm
     return distanza
 
 oggetto_presente = False
@@ -50,8 +56,6 @@ try:
         # OGGETTO ENTRA
         if distanza < SOGLIA_CM and not oggetto_presente:
             print("OGGETTO RILEVATO")
-            # QUI mandi il segnale al Raspberry
-            # es: GPIO.output(PIN, True) / salva file / manda MQTT ecc.
             oggetto_presente = True
 
         # OGGETTO ESCE

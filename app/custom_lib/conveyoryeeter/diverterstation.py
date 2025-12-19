@@ -76,13 +76,12 @@ class DiverterStation:
     ## Da tarare meglio il movimento...
     def push_package(self):
             print("PUSHING")
-            self.servo.mid()
+
+            self.servo.value= -1
             sleep(1)
-            self.servo.max()
+            self.servo.value= 0.5
             sleep(1)
-            self.servo.min()
-            sleep(1)
-            self.servo.mid()
+            self.servo.value= -1
 
     def enqueue(self, action):
         """Aggiunge in coda"""
