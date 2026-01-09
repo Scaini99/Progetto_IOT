@@ -1,11 +1,17 @@
 
 from custom_lib.conveyoryeeter.diverterstation import DiverterStation
+from custom_lib.conveyoryeeter.conveyorbeltengine import ConveyorBeltEngine
 from time import sleep
 
 
 def main():
     print("=== Test DiverterStation – push ogni 2 secondi ===")
 
+    conveyorbelt= ConveyorBeltEngine(
+        pin_rele= 21
+    )
+
+    conveyorbelt.start()
 
     station1 = DiverterStation(
         position=1,
@@ -13,6 +19,7 @@ def main():
         echo_pin=24,   # echo sensore (non usato in questo test)
         servo_pin=13   # GPIO servo (BCM)
     )
+
     station2 = DiverterStation(
         position=2,
         trig_pin=25,   # trigger sensore (non usato in questo test)
@@ -33,11 +40,13 @@ def main():
 
     except KeyboardInterrupt:
         print("\nInterruzione manuale")
+        conveyorbelt.stop()
 
     finally:
         print("Cleanup GPIO")
         station1.cleanup()
         station2.cleanup()
+        conveyorbelt.cleanup()
 
 if __name__ == "__main__":
     main()
