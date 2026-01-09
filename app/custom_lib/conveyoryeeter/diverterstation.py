@@ -28,9 +28,15 @@ import platform
 import RPi.GPIO as GPIO
 from gpiozero import Servo
 
+from gpiozero.pins.pigpio import PiGPIOFactory
+
+
 ## fine accrocchio
 
 from time import sleep, time
+
+
+pigpio_factory = PiGPIOFactory()
 
 
 class DiverterStation:
@@ -39,12 +45,18 @@ class DiverterStation:
         self.position= position
         self.trigger = trig_pin
         self.echo = echo_pin
-        self.servo = Servo(servo_pin)
+        self.servo = Servo(
+            servo_pin,
+            pin_factory=pigpio_factory,
+            min_pulse_width=0.5/1000,
+            max_pulse_width=2.5/1000
+        )
         self.action_queue= []
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.trigger, GPIO.OUT)
         GPIO.setup(self.echo, GPIO.IN)
+        self.servo.value= -0
 
     def is_passing(self) -> bool:
         GPIO.output(self.trigger, False)
@@ -77,11 +89,11 @@ class DiverterStation:
     def push_package(self):
             print("PUSHING")
 
-            self.servo.value= -1
+            self.servo.value= 0
             sleep(1)
-            self.servo.value= 0.5
+            self.servo.value= 0.80
             sleep(1)
-            self.servo.value= -1
+            self.servo.value= 0
 
     def enqueue(self, action):
         """Aggiunge in coda"""
