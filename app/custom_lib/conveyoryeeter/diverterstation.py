@@ -34,6 +34,7 @@ from gpiozero.pins.pigpio import PiGPIOFactory
 ## fine accrocchio
 
 from time import sleep, time
+import threading
 
 
 pigpio_factory = PiGPIOFactory()
@@ -56,9 +57,10 @@ class DiverterStation:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.trigger, GPIO.OUT)
         GPIO.setup(self.echo, GPIO.IN)
-        self.servo.value= -0
+        self.servo.value= 0
+        self.is_pushing= False
 
-    def is_passing(self) -> bool:
+    def is_detection(self) -> bool:
         GPIO.output(self.trigger, False)
         sleep(0.05)
 
@@ -85,15 +87,31 @@ class DiverterStation:
         return 5 < distanza < 30
 
 
-    ## Da tarare meglio il movimento...
-    def push_package(self):
-            print("PUSHING")
+    def is_passing(self) ->bool:
+        if self.is_pushing == False:
+            return self.is_detection()
 
-            self.servo.value= 0
+
+    def push_package(self):
+        if self.is_pushing == False:
+            self.is_pushing= True
+            print("PUSHING")
+            threading.Thread(
+                target=self._push_sequence,
+                daemon=True
+            ).start()
+            
+
+    def _push_sequence(self):
+        self.servo.value = 0
+        self.servo.value = 0.80
+
+        while self.is_detection():
             sleep(1)
-            self.servo.value= 0.80
-            sleep(1)
-            self.servo.value= 0
+
+        sleep(2)
+        self.servo.value = 0
+        self.is_pushing= False
 
     def enqueue(self, action):
         """Aggiunge in coda"""
