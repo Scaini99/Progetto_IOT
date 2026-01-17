@@ -84,7 +84,7 @@ class DiverterStation:
         durata = stop - start
         distanza = (durata * 34300) / 2  # cm
 
-        return 5 < distanza < 30
+        return 5 < distanza < 10
 
 
     def is_passing(self) ->bool:
@@ -104,12 +104,13 @@ class DiverterStation:
 
     def _push_sequence(self):
         self.servo.value = 0
-        self.servo.value = 0.80
+        sleep(1)
+        self.servo.value = 0.60
 
         while self.is_detection():
             sleep(1)
 
-        sleep(2)
+        sleep(6)
         self.servo.value = 0
         self.is_pushing= False
 

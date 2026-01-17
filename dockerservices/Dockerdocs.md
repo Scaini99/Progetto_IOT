@@ -49,7 +49,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /home/pi/smister/dockerservices/database/postgres/data:/var/lib/postgresql/data
+      - home/admin/sMister/docker/postgres/data:/var/lib/postgresql/data
     container_name: postgresql
     restart: unless-stopped
     
@@ -114,27 +114,29 @@ Lo stack _routing_ contiene i servizi necessari al routing dei pacchi, contiene 
 Prima di tutto bisogna scaricare le mappe
 
 ```bash
-mkdir  /home/pi/smister/dockerservices/routing/map
-wget https://download.geofabrik.de/europe/italy/nord-est-latest.osm.pbf -O /home/pi/dockerservices/routing/map/map.osm.pbf
+mkdir  /home/admin/sMister/docker/routing/map
+wget https://download.geofabrik.de/europe/italy/nord-est-latest.osm.pbf -O /home/admin/sMister/docker/routing/map/map.osm.pbf
 ```
 
-Dopodiché bisogna eseguire questo container per preparare le mappe. Questa è un operazione che può essere fatta anche a mano se non si vuole creare il container
+Dopodiché bisogna eseguire questo container per preparare le mappe. Questa è un operazione che può essere fatta anche a mano se non si vuole creare il container.
 
 ```yaml
 services:
   osrm-prep:
-    image: osrm/osrm-backend
+    image: ghcr.io/project-osrm/osrm-backend:latest
     command: >
       sh -c "
         osrm-extract -p /opt/car.lua /data/map.osm.pbf &&
         osrm-contract /data/map.osrm
       "
     volumes:
-      - /home/pi/smister/dockerservices/routing/map:/data
+      - /home/admin/sMister/docker/routing/map:/data
     restart: "no"
 ```
 
-Bisogna aspettare qualche minuto che estragga le mappe, controlla sul log illivello di avanzamento. Una volta terminato di eseguire questo container non è più indispensabile.
+Bisogna aspettare qualche minuto che estragga le mappe, controlla sul log il livello di avanzamento. Una volta terminato di eseguire questo container non è più indispensabile.
+
+Questa è un'operazione pesante. Meglio eseguiurla a parte e poi copiare i file sul Raspberry
 
 A questo punto è possibile installare i servizi di routing.
 
@@ -142,11 +144,11 @@ A questo punto è possibile installare i servizi di routing.
 services:
   osrm:
     network_mode: host ## todo
-    image: osrm/osrm-backend
+    image: ghcr.io/project-osrm/osrm-backend:latest
     command: osrm-routed /data/map.osrm
     volumes:
-      - /home/pi/smister/dockerservices/routing/osrm:/config
-      - /home/pi/smister/dockerservices/routing/map:/data
+      - /home/admin/sMister/docker/routing/osrm:/config
+      - /home/admin/sMister/docker/routing/map:/data
     ports:
       - "5000:5000"
     restart: unless-stopped
@@ -159,7 +161,7 @@ services:
       - OSRM_HOST=osrm
       - OSRM_PORT=5000
     volumes:
-      - /home/pi/smister/dockerservices/routing/vroom:/config
+      - /home/admin/sMister/docker/routing/vroom:/config
     ports:
       - "3100:3000"
     depends_on:
