@@ -17,6 +17,14 @@ import psycopg2     # per database
 import requests     # richieste in rete
 import json         # maneggia file formato json
 
+import threading    # uso dei thread
+from queue import Queue, Empty  # code
+
+## thread 
+from qr_scan_thread import qr_reader
+from phisical_stations_thread import phisical_stations
+from conveyor_thread import conveyor_belt
+
 def main():
     ## Connettersi a db
     database = psycopg2.connect( 
@@ -102,7 +110,7 @@ def main():
                 numero_ordine = step['id']
 
                 cur.execute(
-                    "INSERT INTO consegna (numero_ordine, veicolo_assegnato) VALUES (%s, %s)",
+                    "INSERT INTO consegna (numero_ordine, veicolo_assegnato) VALUES (%s, %s) ON CONFLICT (numero_ordine) DO NOTHING",
                     (numero_ordine, veicolo_assegnato)
                 )
                 tot_packages+=1
@@ -123,15 +131,48 @@ def main():
     ##TODO:
     # tipo creare tutto
 
-    nr_postazioni= constants.NR_OF_VEHICLES
+    ##nr_postazioni= constants.NR_OF_VEHICLES
 
-    sorting_stations= []
+    ##sorting_stations= []
 
     ## inizializzazione manuale delle stazioni di smistamento like a pro (posizione trigger echo servo)
-    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(1, constants.PIN_TRIGGER_1, constants.PIN_ECHO_1, cosnstants.PIN_SERVO_1))
-    sorting_stations.append(conveyoryeeter.sortingstation.Sortingstation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, cosnstants.PIN_SERVO_2))
+    ##sorting_stations.append(conveyoryeeter.diverterstation.DiverterStation(1, constants.PIN_TRIGGER_1, constants.PIN_ECHO_1, constants.PIN_SERVO_1))
+    ##sorting_stations.append(conveyoryeeter.diverterstation.DiverterStation(2, constants.PIN_TRIGGER_2, constants.PIN_ECHO_2, constants.PIN_SERVO_2))
+    
+    qr_read_queue = Queue()
 
+    qr_reader_done = threading.Event()
+    no_more_packages = threading.Event()
 
+    ## Thread per il nastro trasportatotore
+    conveyor_belt_thread = threading.Thread(target=conveyor_belt, args=(
+        qr_reader_done, ## DONE: thread qr non ha piu pacchi da leggere
+        no_more_packages ## DONE: le stazioni fisiche non hanno piu pacchi
+    ))
+
+    cur= database.cursor()
+    cur.execute("SELECT COUNT(*) AS totale_pacchi FROM consegna;")
+    result= cur.fetchone()
+    to_be_smisted= result[0] ## int: nr di pacchi presenti
+
+    qr_reader_thread = threading.Thread(target=qr_reader, args=(
+        qr_read_queue, ## canale qr_scan_thread - phisical_stations_thread
+        qr_reader_done, ## comunica la sua fine
+        database, ## connessione al db
+        to_be_smisted ## pacchi da smistare in giornata
+    ))
+
+    phisical_stations_thread = threading.Thread(target=phisical_stations, args=(
+        qr_read_queue, ## canale qr_scan_thread - phisical_stations_thread
+        no_more_packages, ## comunica la sua fine
+        to_be_smisted ## pacchi da smistare in giornata
+    ))
+
+    conveyor_belt_thread.start()
+    qr_reader_thread.start()
+    phisical_stations_thread.start()
+
+    print("end")
     
 
 if __name__ == "__main__":

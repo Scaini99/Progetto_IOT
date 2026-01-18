@@ -11,7 +11,8 @@ import constants
 import time
 
 def phisical_stations(queue: Queue, done_event: threading.Event, to_be_smisted: int):
-    nr_postazioni= 3 # constants.NR_OF_VEHICLES
+    print("phisical_station_thread: START")
+    nr_postazioni= constants.NR_OF_VEHICLES
     internal_package_counter= 0
 
     ## inizializzazione postazioni (position, trigger, echo, servo)
@@ -29,7 +30,7 @@ def phisical_stations(queue: Queue, done_event: threading.Event, to_be_smisted: 
             message = queue.get(timeout=0.05)
             internal_package_counter= internal_package_counter +1
 
-            loading_bay= message[2]
+            loading_bay= message[2] ## loading_bay
 
             ## inserisce le istruzioni nelle code
             for i in range(0, loading_bay):

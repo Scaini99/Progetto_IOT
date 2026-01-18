@@ -16,6 +16,7 @@ import time
 
 
 def qr_reader(queue: Queue, done_event: threading.Event, database, to_be_smisted: int):
+    print("qr_reader: START")
 
     camera = WatchMyPack(camera_id=0)
     prev_id= None
