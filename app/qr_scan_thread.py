@@ -38,6 +38,7 @@ def qr_reader(queue: Queue, done_event: threading.Event, database, to_be_smisted
             loading_bay= result[0]
 
             internal_package_counter = internal_package_counter + 1 
+            print(f"qr scan thread: {internal_package_counter}")
 
             print(f"qr_scan_thread: pacco: {current_id}\nveicolo: {vehicle_id}\nloading bay: {loading_bay}")
 
@@ -45,5 +46,5 @@ def qr_reader(queue: Queue, done_event: threading.Event, database, to_be_smisted
             queue.put(message)
 
         time.sleep(0.01)
-    
+    print("done qr station")
     done_event.set()

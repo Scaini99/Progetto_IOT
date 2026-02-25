@@ -104,15 +104,18 @@ class DiverterStation:
 
     def _push_sequence(self):
         self.servo.value = 0
-        sleep(1)
+        sleep(3.3)
         self.servo.value = 0.60
 
         while self.is_detection():
             sleep(1)
 
-        sleep(6)
+        sleep(4)
         self.servo.value = 0
         self.is_pushing= False
+
+    def set_servo_value(self, s_value):
+        self.servo.value= s_value
 
     def enqueue(self, action):
         """Aggiunge in coda"""

@@ -28,7 +28,8 @@ def phisical_stations(queue: Queue, done_event: threading.Event, to_be_smisted: 
         if not queue.empty():
             print("phisical_station_thread: FOUND MSG")
             message = queue.get(timeout=0.05)
-            internal_package_counter= internal_package_counter +1
+            
+            print(f"phisical station {internal_package_counter}")
 
             loading_bay= message[2] ## loading_bay
 
@@ -56,7 +57,18 @@ def phisical_stations(queue: Queue, done_event: threading.Event, to_be_smisted: 
                 print(f"phisical_station_thread: SMTH FOUND, INSTRUCTION: {instruction}")
                 if instruction:
                     diverter_station.push_package()
+                    internal_package_counter= internal_package_counter +1
+        
+        ## ritardo per l'ultimo pacco
+        if internal_package_counter == to_be_smisted:
+            time.sleep(5)
         
         time.sleep(0.01)
-
+    
+    ## tutti i pacchi sono stato smistati, servo tornano in posizione neutra
+    for i in range(nr_postazioni):
+        diverter_station= diverter_stations[i]
+        diverter_station.set_servo_value(0)
+     
+    print("done phisical station")
     done_event.set()
